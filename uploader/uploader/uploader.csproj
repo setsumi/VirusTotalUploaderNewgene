@@ -106,7 +106,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FileUtil.cs" />
     <Compile Include="Uploader.cs" />
     <Compile Include="LocalizationBase.cs" />
     <Compile Include="LocalizationHelper.cs" />
