@@ -1,0 +1,14 @@
+/**/.vs/
+/**/x64
+/**/bin
+/**/obj
+/**/Debug
+/**/Release
+
+*.ncb
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
