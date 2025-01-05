@@ -1,2 +1,3 @@
 # VirusTotalUploaderNewgene
-Check files with VirusTotal service and site.
+
+Windows GUI app to check files with VirusTotal service and site.
