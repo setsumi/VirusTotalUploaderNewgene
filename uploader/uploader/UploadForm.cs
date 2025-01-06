@@ -243,7 +243,8 @@ namespace uploader
                         int numberTotal = 0, numberDetected = 0;
                         foreach (var property in lastAnalysisResults.Properties())
                         {
-                            if (property.Value["category"].ToString().Contains("unsupported"))
+                            var category = property.Value["category"].ToString();
+                            if (category.Contains("unsupported") || category.Contains("timeout") || category.Contains("failure"))
                                 continue;
                             numberTotal++;
                             var result = property.Value["result"];
