@@ -7,7 +7,7 @@
     <ProjectGuid>{9C286E36-D6CD-44FA-8222-5C7D42884308}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>uploader</RootNamespace>
-    <AssemblyName>uploader</AssemblyName>
+    <AssemblyName>VirusTotalUploaderNewgene</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

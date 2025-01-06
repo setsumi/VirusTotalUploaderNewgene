@@ -380,10 +380,7 @@ namespace uploader
 
             if (exists)
             {
-                SHA256 = Utils.GetSHA256(_path).ToLower();
-                sha2Textbox.Text = SHA256;
-                statusLabel.Text = LocalizationHelper.Base.Message_Idle;
-                SetLink($"https://www.virustotal.com/gui/file/{SHA256}");
+                // check file size
                 double fileSizeInBytes = new FileInfo(_path).Length;
                 double fileSizeInMB = fileSizeInBytes / (1024 * 1024);
                 string formattedFileSize = fileSizeInMB.ToString("0.00");
@@ -395,14 +392,24 @@ namespace uploader
                 else if (LargeFile)
                     suffix = "   large file >32MB";
 
-                fileGroup.Text = $"#{_fileCounter}   {formattedFileSize} MB{suffix}";
-                if (tooLarge)
+                if (!tooLarge)
+                {
+                    SHA256 = Utils.GetSHA256(_path).ToLower();
+                    sha2Textbox.Text = SHA256;
+                    statusLabel.Text = LocalizationHelper.Base.Message_Idle;
+                    SetLink($"https://www.virustotal.com/gui/file/{SHA256}");
+                }
+                else
+                {
+                    statusLabel.Text = "";
                     uploadButton.Enabled = false;
+                }
+
+                fileGroup.Text = $"#{_fileCounter}   {formattedFileSize} MB{suffix}";
             }
             else
             {
                 statusLabel.Text = "";
-                sha2Textbox.Text = "";
                 fileGroup.Text = $"#{_fileCounter}   File does not exist.";
                 uploadButton.Enabled = false;
             }
