@@ -66,6 +66,8 @@
             // statusLabel
             // 
             this.statusLabel.AutoSize = true;
+            this.statusLabel.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.statusLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.statusLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
             this.statusLabel.Location = new System.Drawing.Point(90, 103);
             this.statusLabel.Name = "statusLabel";
@@ -165,7 +167,6 @@
             this.Name = "UploadForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "VirusTotal Uploader";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.UploadForm_FormClosing);
             this.Load += new System.EventHandler(this.UploadForm_Load);
             this.fileGroup.ResumeLayout(false);
             this.fileGroup.PerformLayout();

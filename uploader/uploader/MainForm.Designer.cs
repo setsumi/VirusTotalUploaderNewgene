@@ -35,6 +35,8 @@
             this.labelMessage = new DarkUI.Controls.DarkLabel();
             this.labelClear = new DarkUI.Controls.DarkLabel();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.tmrRateLimiter = new System.Windows.Forms.Timer(this.components);
+            this.queueLabel = new DarkUI.Controls.DarkLabel();
             this.SuspendLayout();
             // 
             // moreLabel
@@ -92,12 +94,28 @@
             this.toolTip1.SetToolTip(this.labelClear, "Remove all uploads");
             this.labelClear.Click += new System.EventHandler(this.labelClear_Click);
             // 
+            // tmrRateLimiter
+            // 
+            this.tmrRateLimiter.Interval = 1000;
+            this.tmrRateLimiter.Tick += new System.EventHandler(this.tmrRateLimiter_Tick);
+            // 
+            // queueLabel
+            // 
+            this.queueLabel.AutoSize = true;
+            this.queueLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.queueLabel.Location = new System.Drawing.Point(453, 14);
+            this.queueLabel.Name = "queueLabel";
+            this.queueLabel.Size = new System.Drawing.Size(63, 13);
+            this.queueLabel.TabIndex = 8;
+            this.queueLabel.Text = "queueLabel";
+            // 
             // MainForm
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(744, 361);
+            this.Controls.Add(this.queueLabel);
             this.Controls.Add(this.moreLabel);
             this.Controls.Add(this.panelUploads);
             this.Controls.Add(this.labelClear);
@@ -113,15 +131,18 @@
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.MainForm_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.MainForm_DragEnter);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
         private DarkUI.Controls.DarkLabel moreLabel;
-        private System.Windows.Forms.Panel panelUploads;
         private DarkUI.Controls.DarkLabel labelMessage;
         private DarkUI.Controls.DarkLabel labelClear;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.Timer tmrRateLimiter;
+        private DarkUI.Controls.DarkLabel queueLabel;
+        public System.Windows.Forms.Panel panelUploads;
     }
 }
 

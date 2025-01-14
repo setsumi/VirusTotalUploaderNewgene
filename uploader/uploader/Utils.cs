@@ -5,7 +5,7 @@ using System.Text;
 
 namespace uploader
 {
-    internal class Utils
+    internal static class Utils
     {
         public static string GetMD5(string file)
         {

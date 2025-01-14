@@ -30,6 +30,8 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
             this.generalGroupBox = new DarkUI.Controls.DarkGroupBox();
+            this.callsPerMinuteUpDown = new DarkUI.Controls.DarkNumericUpDown();
+            this.darkLabel2 = new DarkUI.Controls.DarkLabel();
             this.apiLimitsLabel = new DarkUI.Controls.DarkLabel();
             this.darkLabel1 = new DarkUI.Controls.DarkLabel();
             this.directCheckbox = new DarkUI.Controls.DarkCheckBox();
@@ -42,11 +44,14 @@
             this.openButton = new DarkUI.Controls.DarkButton();
             this.statusLabel = new DarkUI.Controls.DarkLabel();
             this.generalGroupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.callsPerMinuteUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // generalGroupBox
             // 
             this.generalGroupBox.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
+            this.generalGroupBox.Controls.Add(this.callsPerMinuteUpDown);
+            this.generalGroupBox.Controls.Add(this.darkLabel2);
             this.generalGroupBox.Controls.Add(this.apiLimitsLabel);
             this.generalGroupBox.Controls.Add(this.darkLabel1);
             this.generalGroupBox.Controls.Add(this.directCheckbox);
@@ -62,16 +67,48 @@
             this.generalGroupBox.TabStop = false;
             this.generalGroupBox.Text = "settings";
             // 
+            // callsPerMinuteUpDown
+            // 
+            this.callsPerMinuteUpDown.Location = new System.Drawing.Point(164, 142);
+            this.callsPerMinuteUpDown.Maximum = new decimal(new int[] {
+            999,
+            0,
+            0,
+            0});
+            this.callsPerMinuteUpDown.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.callsPerMinuteUpDown.Name = "callsPerMinuteUpDown";
+            this.callsPerMinuteUpDown.Size = new System.Drawing.Size(60, 20);
+            this.callsPerMinuteUpDown.TabIndex = 7;
+            this.callsPerMinuteUpDown.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // darkLabel2
+            // 
+            this.darkLabel2.AutoSize = true;
+            this.darkLabel2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.darkLabel2.Location = new System.Drawing.Point(15, 144);
+            this.darkLabel2.Name = "darkLabel2";
+            this.darkLabel2.Size = new System.Drawing.Size(143, 13);
+            this.darkLabel2.TabIndex = 6;
+            this.darkLabel2.Text = "Limit API requests per minute";
+            // 
             // apiLimitsLabel
             // 
             this.apiLimitsLabel.AutoSize = true;
             this.apiLimitsLabel.Cursor = System.Windows.Forms.Cursors.Hand;
             this.apiLimitsLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.apiLimitsLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.apiLimitsLabel.Location = new System.Drawing.Point(366, 144);
+            this.apiLimitsLabel.Location = new System.Drawing.Point(305, 144);
             this.apiLimitsLabel.Name = "apiLimitsLabel";
             this.apiLimitsLabel.Size = new System.Drawing.Size(49, 13);
-            this.apiLimitsLabel.TabIndex = 7;
+            this.apiLimitsLabel.TabIndex = 9;
             this.apiLimitsLabel.Text = "API limits";
             this.apiLimitsLabel.Click += new System.EventHandler(this.apiLimitsLabel_Click);
             // 
@@ -79,11 +116,11 @@
             // 
             this.darkLabel1.AutoSize = true;
             this.darkLabel1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.darkLabel1.Location = new System.Drawing.Point(33, 144);
+            this.darkLabel1.Location = new System.Drawing.Point(240, 144);
             this.darkLabel1.Name = "darkLabel1";
-            this.darkLabel1.Size = new System.Drawing.Size(327, 13);
-            this.darkLabel1.TabIndex = 6;
-            this.darkLabel1.Text = "be careful with this option when adding multiple files, you may hit the";
+            this.darkLabel1.Size = new System.Drawing.Size(59, 13);
+            this.darkLabel1.TabIndex = 8;
+            this.darkLabel1.Text = "consult the";
             // 
             // directCheckbox
             // 
@@ -150,7 +187,7 @@
             this.saveButton.Name = "saveButton";
             this.saveButton.Padding = new System.Windows.Forms.Padding(5);
             this.saveButton.Size = new System.Drawing.Size(75, 23);
-            this.saveButton.TabIndex = 2;
+            this.saveButton.TabIndex = 1;
             this.saveButton.Text = "save";
             this.saveButton.Click += new System.EventHandler(this.saveButton_Click);
             // 
@@ -161,7 +198,7 @@
             this.openButton.Name = "openButton";
             this.openButton.Padding = new System.Windows.Forms.Padding(5);
             this.openButton.Size = new System.Drawing.Size(153, 23);
-            this.openButton.TabIndex = 3;
+            this.openButton.TabIndex = 2;
             this.openButton.Text = "explore settings file";
             this.openButton.Click += new System.EventHandler(this.darkButton1_Click);
             // 
@@ -173,7 +210,7 @@
             this.statusLabel.Location = new System.Drawing.Point(253, 203);
             this.statusLabel.Name = "statusLabel";
             this.statusLabel.Size = new System.Drawing.Size(74, 13);
-            this.statusLabel.TabIndex = 4;
+            this.statusLabel.TabIndex = 3;
             this.statusLabel.Text = "no settings file";
             this.statusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -194,6 +231,7 @@
             this.Load += new System.EventHandler(this.SettingsForm_Load);
             this.generalGroupBox.ResumeLayout(false);
             this.generalGroupBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.callsPerMinuteUpDown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -213,5 +251,7 @@
         private DarkUI.Controls.DarkLabel statusLabel;
         private DarkUI.Controls.DarkLabel darkLabel1;
         private DarkUI.Controls.DarkLabel apiLimitsLabel;
+        private DarkUI.Controls.DarkNumericUpDown callsPerMinuteUpDown;
+        private DarkUI.Controls.DarkLabel darkLabel2;
     }
 }

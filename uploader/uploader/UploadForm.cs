@@ -15,7 +15,8 @@ namespace uploader
 {
     public partial class UploadForm : DarkForm
     {
-        private readonly object obj = new object();
+        private readonly object _formLock = new object();
+        private readonly object _threadLock = new object();
 
         private enum StatusMessageStyle { Normal, Red, Green, Error, Success, Progress }
         private enum FormStatus { Check, Upload }
@@ -26,14 +27,16 @@ namespace uploader
         private Thread _uploadThread;
         private RestClient _client;
         private readonly int _fileCounter;
+        private CancellationTokenSource _cancelTokenSource = null;
+        private bool _formAborted = false;
 
         private bool _largeFile = false;
         private FormStatus _status = FormStatus.Check;
         private string _SHA256 = "";
 
-        private bool LargeFile { get { lock (obj) { return _largeFile; } } set { lock (obj) { _largeFile = value; } } }
-        private FormStatus Status { get { lock (obj) { return _status; } } set { lock (obj) { _status = value; } } }
-        private string SHA256 { get { lock (obj) { return _SHA256; } } set { lock (obj) { _SHA256 = value; } } }
+        private bool LargeFile { get { lock (_formLock) { return _largeFile; } } set { lock (_formLock) { _largeFile = value; } } }
+        private FormStatus Status { get { lock (_formLock) { return _status; } } set { lock (_formLock) { _status = value; } } }
+        private string SHA256 { get { lock (_formLock) { return _SHA256; } } set { lock (_formLock) { _SHA256 = value; } } }
 
         public UploadForm(MainForm mainForm, Settings settings, string path, int counter)
         {
@@ -57,6 +60,8 @@ namespace uploader
                 return;
             }
 
+            var scrollY = _mainForm.panelUploads.VerticalScroll.Value;
+            var scrollX = _mainForm.panelUploads.AutoScrollPosition.X;
             statusLabel.Text = text;
             switch (status)
             {
@@ -85,6 +90,8 @@ namespace uploader
                     statusLabel.ForeColor = Color.FromArgb(0, 0, 0);
                     break;
             }
+            _mainForm.panelUploads.AutoScrollPosition = new Point(scrollX, scrollY);
+            _mainForm.panelUploads.VerticalScroll.Value = scrollY;
         }
 
         private void Finish(FormStatus nextStatus)
@@ -176,9 +183,12 @@ namespace uploader
             }
             catch (Exception ex)
             {
-                string message = ex.Message.Replace("\r", "").Replace("\n", " ");
-                DisplayError($"{ex.GetType()}: {message}");
-                Finish(Status);
+                // Don't update the form when disposing of it
+                if (!_formAborted)
+                {
+                    DisplayError($"{ex.GetType()}: {ex.Message.Replace("\r", "").Replace("\n", " ")}");
+                    Finish(Status);
+                }
             }
         }
 
@@ -200,14 +210,14 @@ namespace uploader
                 {
                     ChangeStatus(LocalizationHelper.Base.Message_Check, StatusMessageStyle.Normal);
 
+                    ApiRateWait();
                     var reportRequest = new RestRequest($"api/v3/files/{SHA256}", Method.Get);
                     reportRequest.AddHeader("x-apikey", _settings.ApiKey);
 
                     var reportResponse = _client.Execute(reportRequest);
                     var reportContent = reportResponse.Content;
-#if (DEBUG)
-                    File.WriteAllText("response-check.json", reportContent);
-#endif
+                    //debug
+                    //File.WriteAllText("response-check.json", reportContent);
                     json = JsonConvert.DeserializeObject(reportContent);
 
                     // check for API error
@@ -287,6 +297,7 @@ namespace uploader
                 // get special uri for big files
                 if (LargeFile)
                 {
+                    ApiRateWait();
                     var uploadUrlRequest = new RestRequest($"api/v3/files/upload_url", Method.Get);
                     uploadUrlRequest.AddHeader("x-apikey", _settings.ApiKey);
 
@@ -297,42 +308,24 @@ namespace uploader
                     uploadUri = json.data.ToString();
                 }
 
-                /*byte[] fileData = File.ReadAllBytes(fullPath);
-
-                // Generate post objects
-                Dictionary<string, object> postParameters = new Dictionary<string, object>();
-                postParameters.Add("apikey", _settings.ApiKey);
-                postParameters.Add("file", new Uploader.FileParameter(fileData, Path.GetFileName(fullPath), "multipart/form-data"));
-
-                // Create request and receive response
-                HttpWebResponse webResponse = Uploader.MultipartFormDataPost(uploadUri, "VirusTotalUploaderNewgene", postParameters);
-
-                // Process response
-                StreamReader responseReader = new StreamReader(webResponse.GetResponseStream());
-                string fullResponse = responseReader.ReadToEnd();
-                webResponse.Close();
-
-                json = JsonConvert.DeserializeObject(fullResponse);
-                var scanId = json.scan_id.ToString();
-                var sha256 = json.sha256.ToString();
-                var scanLink = $"https://www.virustotal.com/gui/file/{sha256}/detection/{scanId}";
-
-                if (sha256.ToLower() != SHA256.ToLower())
-                {
-                    MessageBox.Show($"Checksum mismatch.\n{Path.GetFileName(fullPath)}\nOriginal:\n{SHA256.ToLower()}\nUploaded:\n{sha256.ToLower()}");
-                }*/
-
-                //=== APIv3 ====================
+                ApiRateWait();
                 var scanRequest = new RestRequest(uploadUri, Method.Post);
                 scanRequest.AddHeader("x-apikey", _settings.ApiKey);
                 scanRequest.AddFile("file", fullPath);
                 scanRequest.Timeout = TimeSpan.FromHours(6); // super timeout
 
-                var scanResponse = _client.Execute(scanRequest);
+                _cancelTokenSource = new CancellationTokenSource();
+                var task = _client.ExecuteAsync(scanRequest, _cancelTokenSource.Token);
+                // this will wait for completion or cancel/error
+                var scanResponse = task.Result;
+                _cancelTokenSource = null;
+                if (scanResponse.ErrorException != null)
+                    throw scanResponse.ErrorException;
+
+                //var scanResponse = _client.Execute(scanRequest);
                 var scanContent = scanResponse.Content;
-#if (DEBUG)
-                File.WriteAllText("response-upload.json", scanContent);
-#endif
+                //debug
+                //File.WriteAllText("response-upload.json", scanContent);
                 json = JsonConvert.DeserializeObject(scanContent);
 
                 var scanId = json.data.id.ToString();
@@ -344,11 +337,28 @@ namespace uploader
             return true;
         }
 
+        private void ApiRateWait()
+        {
+            lock (_threadLock)
+            {
+                var waiter = _mainForm.rateLimiter.GetWaiter();
+                waiter.WaitOne();
+            }
+        }
+
         private bool StopUploadThread()
         {
             if (_uploadThread != null && _uploadThread.IsAlive)
             {
-                _uploadThread.Abort();
+                if (_cancelTokenSource != null)
+                {
+                    _cancelTokenSource.Cancel();
+                    _cancelTokenSource = null;
+                }
+                else
+                {
+                    _uploadThread.Abort();
+                }
                 return true;
             }
             return false;
@@ -436,8 +446,9 @@ namespace uploader
             StartStopUploadThread();
         }
 
-        private void UploadForm_FormClosing(object sender, FormClosingEventArgs e)
+        public void FormAbort()
         {
+            _formAborted = true;
             StopUploadThread();
         }
 

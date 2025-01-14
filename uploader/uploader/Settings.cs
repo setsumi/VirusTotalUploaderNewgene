@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace uploader
@@ -13,6 +9,7 @@ namespace uploader
         public string ApiKey = "";
         public string Language = "";
         public bool DirectUpload = false;
+        public int CallsPerMinute = 4;
 
         public static string GetSettingsFilename()
         {

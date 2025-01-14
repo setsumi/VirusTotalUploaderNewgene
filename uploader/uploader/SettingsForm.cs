@@ -19,6 +19,7 @@ namespace uploader
 
             apiTextbox.Text = settings.ApiKey;
             directCheckbox.Checked = settings.DirectUpload;
+            callsPerMinuteUpDown.Value = settings.CallsPerMinute;
 
             var languages = LocalizationHelper.GetLanguages();
             languageCombo.Items.Clear();
@@ -74,13 +75,14 @@ namespace uploader
             {
                 ApiKey = apiTextbox.Text,
                 Language = languageCombo.Text,
-                DirectUpload = directCheckbox.Checked
+                DirectUpload = directCheckbox.Checked,
+                CallsPerMinute = (int)callsPerMinuteUpDown.Value
             };
 
             Settings.SaveSettings(settings);
 
             // Needs full restart to initialize main form strings again
-            (Owner as MainForm).labelClear_Click(null, null);
+            (Owner as MainForm).Clear();
             Application.Restart();
             Environment.Exit(0);
         }

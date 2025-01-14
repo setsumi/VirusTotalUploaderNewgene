@@ -17,7 +17,7 @@
 
         public string UploadForm_Check = "Check";
         public string UploadForm_Upload = "Upload";
-        public string UploadForm_Cancel = "Cancel";
+        public string UploadForm_Cancel = "Abort";
         public string UploadForm_NoApiKey = "You have not entered an API key. Please go to settings and add one.";
         public string UploadForm_InvalidLength = "Invalid API key length. The key must contain 64 characters.";
 
