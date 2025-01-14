@@ -19,6 +19,7 @@ namespace uploader
         private int _uploaderCount = 0;
         private bool _addingFiles = false;
         private readonly RateLimiter _rateLimiter;
+        private int _vertScroll = 0;
 
         public MainForm()
         {
@@ -42,6 +43,7 @@ namespace uploader
             queueLabel.BackColor = Color.FromArgb(255, 255, 0);
             queueLabel.ForeColor = Color.FromArgb(0, 0, 0);
             queueLabel.Text = "";
+            panelUploads.VerticalScroll.SmallChange = 26;
         }
 
         private void moreLabel_Click(object sender, EventArgs e)
@@ -60,10 +62,9 @@ namespace uploader
 
         private void MainForm_DragDrop(object sender, DragEventArgs e)
         {
+            ResetScroll();
             var settings = Settings.LoadSettings();
-
             var arguments = (string[])e.Data.GetData(DataFormats.FileDrop);
-            //var files = FileUtil.GetFiles(arguments);
             showMultipleUploadForms(arguments, settings);
         }
 
@@ -111,13 +112,31 @@ namespace uploader
             }
             else
             {
-                // file or don't exist
+                // file or does't exist
                 var upload = new UploadForm(this, settings, path, _uploaderCount + 1);
-                upload.Location = new Point(5, _uploaderCount * (upload.Height + 5));
-                panelUploads.Controls.Add(upload);
-                upload.Show();
-                _uploaderCount++;
+                if (upload.FileIsTooSmall() || FileIsDuplicate(upload.SHA256))
+                {
+                    upload.Close();
+                    upload.Dispose();
+                }
+                else
+                {
+                    upload.Location = new Point(5, _uploaderCount * (upload.Height + 5));
+                    panelUploads.Controls.Add(upload);
+                    upload.Show();
+                    _uploaderCount++;
+                }
             }
+        }
+
+        private bool FileIsDuplicate(string sha256)
+        {
+            if (string.IsNullOrEmpty(sha256)) return false;
+            foreach (UploadForm upload in panelUploads.Controls)
+            {
+                if (upload.SHA256 == sha256) return true;
+            }
+            return false;
         }
 
         private void MainForm_Shown(object sender, EventArgs e)
@@ -199,13 +218,45 @@ namespace uploader
         {
             tmrRateLimiter.Stop();
 
+            SaveScroll();
             _rateLimiter.TimeTick();
             int len = _rateLimiter.GetQueueLength();
             string text = len == 0 ? "" : $"Queued API requests: {len}";
             if (queueLabel.Text != text)
+            {
                 queueLabel.Text = text;
+                RestoreScroll();
+            }
 
             tmrRateLimiter.Start();
+        }
+
+        private void SaveScroll()
+        {
+            _vertScroll = panelUploads.VerticalScroll.Value;
+        }
+
+        private void RestoreScroll()
+        {
+            panelUploads.VerticalScroll.Value = _vertScroll;
+            panelUploads.AutoScrollPosition = new Point(0, _vertScroll);
+        }
+
+        private void ResetScroll()
+        {
+            panelUploads.VerticalScroll.Value = 0;
+            panelUploads.AutoScrollPosition = new Point(0, 0);
+            Application.DoEvents();
+        }
+
+        private void MainForm_Deactivate(object sender, EventArgs e)
+        {
+            SaveScroll();
+        }
+
+        private void MainForm_Activated(object sender, EventArgs e)
+        {
+            RestoreScroll();
         }
     }
 }

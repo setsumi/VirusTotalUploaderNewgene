@@ -20,6 +20,7 @@ namespace uploader
             apiTextbox.Text = settings.ApiKey;
             directCheckbox.Checked = settings.DirectUpload;
             callsPerMinuteUpDown.Value = settings.CallsPerMinute;
+            minSizeUpDown.Value = settings.MinimumFileSize;
 
             var languages = LocalizationHelper.GetLanguages();
             languageCombo.Items.Clear();
@@ -76,7 +77,8 @@ namespace uploader
                 ApiKey = apiTextbox.Text,
                 Language = languageCombo.Text,
                 DirectUpload = directCheckbox.Checked,
-                CallsPerMinute = (int)callsPerMinuteUpDown.Value
+                CallsPerMinute = (int)callsPerMinuteUpDown.Value,
+                MinimumFileSize = (int)minSizeUpDown.Value
             };
 
             Settings.SaveSettings(settings);

@@ -10,6 +10,7 @@ namespace uploader
         public string Language = "";
         public bool DirectUpload = false;
         public int CallsPerMinute = 4;
+        public int MinimumFileSize = 3;
 
         public static string GetSettingsFilename()
         {
@@ -22,7 +23,7 @@ namespace uploader
             {
                 settings.Language = "";
             }
-            
+
             var serialized = JsonConvert.SerializeObject(settings);
             var file = GetSettingsFilename();
 

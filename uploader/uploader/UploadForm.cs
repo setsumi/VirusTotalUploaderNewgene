@@ -29,14 +29,17 @@ namespace uploader
         private readonly int _fileCounter;
         private CancellationTokenSource _cancelTokenSource = null;
         private bool _formAborted = false;
-
+        private bool _fileExists = false;
+        private bool _fileTooLarge = false;
+        private bool _fileTooSmall = false;
+        // thread
         private bool _largeFile = false;
         private FormStatus _status = FormStatus.Check;
         private string _SHA256 = "";
 
         private bool LargeFile { get { lock (_formLock) { return _largeFile; } } set { lock (_formLock) { _largeFile = value; } } }
         private FormStatus Status { get { lock (_formLock) { return _status; } } set { lock (_formLock) { _status = value; } } }
-        private string SHA256 { get { lock (_formLock) { return _SHA256; } } set { lock (_formLock) { _SHA256 = value; } } }
+        public string SHA256 { get { lock (_formLock) { return _SHA256; } } set { lock (_formLock) { _SHA256 = value; } } }
 
         public UploadForm(MainForm mainForm, Settings settings, string path, int counter)
         {
@@ -50,6 +53,8 @@ namespace uploader
             FormBorderStyle = FormBorderStyle.None;
 
             InitializeComponent();
+            // my load
+            FormInit();
         }
 
         private void ChangeStatus(string text, StatusMessageStyle status)
@@ -60,8 +65,6 @@ namespace uploader
                 return;
             }
 
-            var scrollY = _mainForm.panelUploads.VerticalScroll.Value;
-            var scrollX = _mainForm.panelUploads.AutoScrollPosition.X;
             statusLabel.Text = text;
             switch (status)
             {
@@ -90,8 +93,6 @@ namespace uploader
                     statusLabel.ForeColor = Color.FromArgb(0, 0, 0);
                     break;
             }
-            _mainForm.panelUploads.AutoScrollPosition = new Point(scrollX, scrollY);
-            _mainForm.panelUploads.VerticalScroll.Value = scrollY;
         }
 
         private void Finish(FormStatus nextStatus)
@@ -186,7 +187,18 @@ namespace uploader
                 // Don't update the form when disposing of it
                 if (!_formAborted)
                 {
-                    DisplayError($"{ex.GetType()}: {ex.Message.Replace("\r", "").Replace("\n", " ")}");
+                    string type, msg;
+                    if (ex is ThreadAbortException || ex is System.Threading.Tasks.TaskCanceledException)
+                    {
+                        type = "";
+                        msg = "Operation aborted.";
+                    }
+                    else
+                    {
+                        type = ex.GetType() + ": ";
+                        msg = ex.Message.Replace("\r", "").Replace("\n", " ");
+                    }
+                    DisplayError(type + msg);
                     Finish(Status);
                 }
             }
@@ -380,29 +392,39 @@ namespace uploader
             _uploadThread.Start();
         }
 
-        private void UploadForm_Load(object sender, EventArgs e)
+        private void FormInit()
         {
-            bool tooLarge = true;
-            bool exists = File.Exists(_path);
             fileTextbox.Text = Path.GetFileName(_path);
             folderTextbox.Text = Path.GetDirectoryName(_path);
             uploadButton.Text = LocalizationHelper.Base.UploadForm_Check;
 
-            if (exists)
+            _fileExists = File.Exists(_path);
+            if (_fileExists)
             {
                 // check file size
                 double fileSizeInBytes = new FileInfo(_path).Length;
+                double fileSizeInKB = fileSizeInBytes / 1024;
                 double fileSizeInMB = fileSizeInBytes / (1024 * 1024);
-                string formattedFileSize = fileSizeInMB.ToString("0.00");
+
+                string formattedFileSize;
+                if (fileSizeInKB < 0.01)
+                    formattedFileSize = fileSizeInBytes.ToString("0") + " B";
+                else if (fileSizeInMB < 0.01)
+                    formattedFileSize = fileSizeInKB.ToString("0.00") + " KB";
+                else
+                    formattedFileSize = fileSizeInMB.ToString("0.00") + " MB";
                 string suffix = "";
-                tooLarge = fileSizeInMB > 650;
+
+                _fileTooSmall = fileSizeInBytes < _settings.MinimumFileSize;
+                _fileTooLarge = fileSizeInMB > 650;
                 LargeFile = fileSizeInMB > 32;
-                if (tooLarge)
+
+                if (_fileTooLarge)
                     suffix = "   exceeds 650MB limit";
                 else if (LargeFile)
                     suffix = "   large file >32MB";
 
-                if (!tooLarge)
+                if (!_fileTooSmall && !_fileTooLarge)
                 {
                     SHA256 = Utils.GetSHA256(_path).ToLower();
                     sha2Textbox.Text = SHA256;
@@ -415,7 +437,7 @@ namespace uploader
                     uploadButton.Enabled = false;
                 }
 
-                fileGroup.Text = $"#{_fileCounter}   {formattedFileSize} MB{suffix}";
+                fileGroup.Text = $"#{_fileCounter}   {formattedFileSize}{suffix}";
             }
             else
             {
@@ -423,11 +445,19 @@ namespace uploader
                 fileGroup.Text = $"#{_fileCounter}   File does not exist.";
                 uploadButton.Enabled = false;
             }
+        }
 
-            if (exists && !tooLarge && _settings.DirectUpload)
+        private void UploadForm_Load(object sender, EventArgs e)
+        {
+            if (_settings.DirectUpload && _fileExists && !_fileTooSmall && !_fileTooLarge)
             {
                 StartStopUploadThread();
             }
+        }
+
+        public bool FileIsTooSmall()
+        {
+            return _fileTooSmall;
         }
 
         private void SetLink(string link)
@@ -454,7 +484,6 @@ namespace uploader
 
         private void statusLabel_Click(object sender, EventArgs e)
         {
-            fileTextbox.Focus(); // otherwise it will scroll to last focused control
             var url = toolTip1.GetToolTip(statusLabel);
             if (url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
             {
