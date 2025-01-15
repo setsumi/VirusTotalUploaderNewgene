@@ -12,12 +12,12 @@ namespace uploader
 
         private DateTime _currentMinuteStart;
         private int _callsInCurrentMinute;
+        private bool _active = false;
 
         // Constructor
         public RateLimiter(int callsPerMinute)
         {
             _callsPerMinute = callsPerMinute;
-            ResetMinute();
         }
 
         public int GetQueueLength()
@@ -50,6 +50,12 @@ namespace uploader
         {
             lock (_lock)
             {
+                if (!_active)
+                {
+                    _active = true;
+                    ResetMinute();
+                }
+
                 Semaphore waiter = new Semaphore(0, 1);
                 Enqueue(waiter);
                 return waiter;
@@ -66,8 +72,10 @@ namespace uploader
         {
             lock (_lock)
             {
+                if (!_active) return;
+
                 var now = DateTime.UtcNow;
-                if ((now - _currentMinuteStart).TotalMinutes >= 1)
+                if ((now - _currentMinuteStart).TotalMinutes >= 1.05) // minute padding just in case
                 {
                     ResetMinute();
 

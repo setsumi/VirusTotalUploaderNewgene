@@ -225,6 +225,7 @@ namespace uploader
                     ApiRateWait();
                     var reportRequest = new RestRequest($"api/v3/files/{SHA256}", Method.Get);
                     reportRequest.AddHeader("x-apikey", _settings.ApiKey);
+                    reportRequest.Timeout = TimeSpan.FromMinutes(1); // normal timeout
 
                     var reportResponse = _client.Execute(reportRequest);
                     var reportContent = reportResponse.Content;
@@ -312,6 +313,7 @@ namespace uploader
                     ApiRateWait();
                     var uploadUrlRequest = new RestRequest($"api/v3/files/upload_url", Method.Get);
                     uploadUrlRequest.AddHeader("x-apikey", _settings.ApiKey);
+                    uploadUrlRequest.Timeout = TimeSpan.FromMinutes(1); // normal timeout
 
                     var uploadUrlResponse = _client.Execute(uploadUrlRequest);
                     var uploadUrlContent = uploadUrlResponse.Content;
@@ -324,7 +326,7 @@ namespace uploader
                 var scanRequest = new RestRequest(uploadUri, Method.Post);
                 scanRequest.AddHeader("x-apikey", _settings.ApiKey);
                 scanRequest.AddFile("file", fullPath);
-                scanRequest.Timeout = TimeSpan.FromHours(6); // super timeout
+                scanRequest.Timeout = TimeSpan.FromHours(6); // super upload timeout
 
                 _cancelTokenSource = new CancellationTokenSource();
                 var task = _client.ExecuteAsync(scanRequest, _cancelTokenSource.Token);

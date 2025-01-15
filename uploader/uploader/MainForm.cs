@@ -221,7 +221,7 @@ namespace uploader
             SaveScroll();
             _rateLimiter.TimeTick();
             int len = _rateLimiter.GetQueueLength();
-            string text = len == 0 ? "" : $"Queued API requests: {len}";
+            string text = len == 0 ? "" : $"Pending requests: {len}";
             if (queueLabel.Text != text)
             {
                 queueLabel.Text = text;
