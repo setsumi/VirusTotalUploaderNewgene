@@ -2,6 +2,10 @@
 
 Windows GUI app to check files with VirusTotal service and site.
 
+## Requirements
+
+.NET Framework 4.8
+
 ## Download
 
 https://github.com/setsumi/VirusTotalUploaderNewgene/releases
