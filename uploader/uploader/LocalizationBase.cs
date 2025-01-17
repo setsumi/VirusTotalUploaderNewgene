@@ -3,8 +3,7 @@
     class LocalizationBase
     {
         public string MainForm_DragFile = "Drag and drop files or folders";
-        public string MainForm_More = "Settings";
-        public string MainForm_Clear = "Clear";
+        public string MainForm_More = "Menu";
 
         public string SettingsForm_Title = "Settings";
         public string SettingsForm_General = "General settings";

@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using DarkUI.Controls;
 using DarkUI.Forms;
 
 namespace uploader
@@ -20,6 +22,8 @@ namespace uploader
         private bool _addingFiles = false;
         private readonly RateLimiter _rateLimiter;
         private int _vertScroll = 0;
+        private readonly List<UploadForm> _uploadList = new List<UploadForm>();
+        private readonly List<Label> _selectorList = new List<Label>();
 
         public MainForm()
         {
@@ -39,20 +43,40 @@ namespace uploader
 
             labelMessage.Text = LocalizationHelper.Base.MainForm_DragFile;
             moreLabel.Text = LocalizationHelper.Base.MainForm_More;
-            labelClear.Text = LocalizationHelper.Base.MainForm_Clear;
             queueLabel.BackColor = Color.FromArgb(255, 255, 0);
             queueLabel.ForeColor = Color.FromArgb(0, 0, 0);
             queueLabel.Text = "";
             panelUploads.VerticalScroll.SmallChange = 26;
+
+            _selectorList.Add(selAll);
+            _selectorList.Add(selIdle);
+            _selectorList.Add(selDetected);
+            _selectorList.Add(selUndetected);
+            _selectorList.Add(selUploading);
+            _selectorList.Add(selUploaded);
+            _selectorList.Add(selError);
+            _selectorList.Add(selAborted);
+
+            selDetected.BackColor = Color.FromArgb(60, 63, 65);
+            selDetected.ForeColor = Color.FromArgb(255, 100, 0);
+            selUndetected.BackColor = Color.FromArgb(60, 63, 65);
+            selUndetected.ForeColor = Color.FromArgb(0, 255, 0);
+            selUploading.BackColor = Color.FromArgb(255, 255, 0);
+            selUploading.ForeColor = Color.FromArgb(0, 0, 0);
+            selUploaded.BackColor = Color.FromArgb(0, 255, 100);
+            selUploaded.ForeColor = Color.FromArgb(0, 0, 0);
+            selError.BackColor = Color.FromArgb(255, 0, 0);
+            selError.ForeColor = Color.FromArgb(255, 255, 0);
+            selAborted.BackColor = Color.FromArgb(255, 0, 0);
+            selAborted.ForeColor = Color.FromArgb(255, 255, 255);
+
+            SelectorSelect(selAll);
+            SelectorUpdateStats();
         }
 
         private void moreLabel_Click(object sender, EventArgs e)
         {
-            if (_settingsForm.IsDisposed)
-            {
-                _settingsForm = new SettingsForm();
-            }
-            _settingsForm.Show(this);
+            contextMenu1.Show(moreLabel, 0, moreLabel.Height);
         }
 
         private void MainForm_DragEnter(object sender, DragEventArgs e)
@@ -71,7 +95,7 @@ namespace uploader
         private void showMultipleUploadForms(string[] files, Settings settings)
         {
             _addingFiles = true;
-            labelClear.Enabled = false;
+            clearToolStripMenuItem.Enabled = false;
 
             int i = 0;
             foreach (var file in files)
@@ -83,10 +107,10 @@ namespace uploader
                 AddUpload(settings, file);
             }
             panelUploads_Resize(null, null);
-            labelMessage.Text = $"{_uploaderCount} file(s) in total.{(!_addingFiles ? " (Last operation was aborted)" : "")}";
+            labelMessage.Text = $"{_uploadList.Count} file(s) in total.{(!_addingFiles ? " (Last operation was aborted)" : "")}";
 
+            clearToolStripMenuItem.Enabled = true;
             _addingFiles = false;
-            labelClear.Enabled = true;
         }
 
         private void AddUpload(Settings settings, string path)
@@ -113,7 +137,7 @@ namespace uploader
             else
             {
                 // file or does't exist
-                var upload = new UploadForm(this, settings, path, _uploaderCount + 1);
+                var upload = new UploadForm(this, settings, path, _uploadList.Count + 1);
                 if (upload.FileIsTooSmall() || FileIsDuplicate(upload.SHA256))
                 {
                     upload.Close();
@@ -121,6 +145,7 @@ namespace uploader
                 }
                 else
                 {
+                    _uploadList.Add(upload);
                     upload.Location = new Point(5, _uploaderCount * (upload.Height + 5));
                     panelUploads.Controls.Add(upload);
                     upload.Show();
@@ -171,35 +196,28 @@ namespace uploader
 
         public void Clear()
         {
-            labelClear.Enabled = false;
+            clearToolStripMenuItem.Enabled = false;
             queueLabel.Text = "Clearing, please wait...";
             Application.DoEvents();
 
-            var forms = panelUploads.Controls.Cast<UploadForm>().ToList();
-            foreach (var upload in forms)
+            foreach (var upload in _uploadList)
             {
                 upload.FormAbort();
             }
             _rateLimiter.Clear();
             panelUploads.Controls.Clear();
 
-            foreach (var form in forms)
+            foreach (var form in _uploadList)
             {
                 form.Close();
                 form.Dispose();
             }
-            forms.Clear();
-
+            _uploadList.Clear();
             _uploaderCount = 0;
+
             labelMessage.Text = LocalizationHelper.Base.MainForm_DragFile;
-
-            labelClear.Enabled = true;
             queueLabel.Text = "";
-        }
-
-        public void labelClear_Click(object sender, EventArgs e)
-        {
-            Clear();
+            clearToolStripMenuItem.Enabled = true;
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -227,6 +245,8 @@ namespace uploader
                 queueLabel.Text = text;
                 RestoreScroll();
             }
+
+            SelectorUpdateStats();
 
             tmrRateLimiter.Start();
         }
@@ -257,6 +277,138 @@ namespace uploader
         private void MainForm_Activated(object sender, EventArgs e)
         {
             RestoreScroll();
+        }
+
+        private void selAll_Click(object sender, EventArgs e)
+        {
+            SelectorSelect(sender as Label);
+        }
+
+        private void SelectorSelect(Label sel)
+        {
+            foreach (var item in _selectorList)
+            {
+                item.Font = new Font(item.Font, FontStyle.Regular);
+            }
+            sel.Font = new Font(sel.Font, FontStyle.Underline);
+
+            SelectorUpdateUploads();
+        }
+
+        private void SelectorUpdateUploads()
+        {
+            Label sel = selAll;
+            foreach (var selector in _selectorList)
+            {
+                if (selector.Font.Underline)
+                {
+                    sel = selector;
+                    break;
+                }
+            }
+
+            var uploads = new List<UploadForm>();
+            foreach (var upload in _uploadList)
+            {
+                if (sel == selAll) { uploads.Add(upload); }
+                else if (sel == selIdle) { if (upload.State == UploadForm.StatusMessageStyle.Normal) uploads.Add(upload); }
+                else if (sel == selDetected) { if (upload.State == UploadForm.StatusMessageStyle.Red) uploads.Add(upload); }
+                else if (sel == selUndetected) { if (upload.State == UploadForm.StatusMessageStyle.Green) uploads.Add(upload); }
+                else if (sel == selUploading) { if (upload.State == UploadForm.StatusMessageStyle.Progress) uploads.Add(upload); }
+                else if (sel == selUploaded) { if (upload.State == UploadForm.StatusMessageStyle.Success) uploads.Add(upload); }
+                else if (sel == selError) { if (upload.State == UploadForm.StatusMessageStyle.Error) uploads.Add(upload); }
+                else if (sel == selAborted) { if (upload.State == UploadForm.StatusMessageStyle.Abort) uploads.Add(upload); }
+            }
+
+            panelUploads.Controls.Clear();
+            ResetScroll();
+            _uploaderCount = 0;
+
+            foreach (var upload in uploads)
+            {
+                upload.Location = new Point(5, _uploaderCount * (upload.Height + 5));
+                panelUploads.Controls.Add(upload);
+                _uploaderCount++;
+            }
+        }
+
+        private void SelectorUpdateStats()
+        {
+            int All = 0, Idle = 0, Detected = 0, Undetected = 0, Uploading = 0, Uploaded = 0, Error = 0, Aborted = 0;
+            foreach (var upload in _uploadList)
+            {
+                All++;
+                var state = upload.State;
+                switch (state)
+                {
+                    case UploadForm.StatusMessageStyle.Normal:
+                        Idle++;
+                        break;
+                    case UploadForm.StatusMessageStyle.Red:
+                        Detected++;
+                        break;
+                    case UploadForm.StatusMessageStyle.Green:
+                        Undetected++;
+                        break;
+                    case UploadForm.StatusMessageStyle.Progress:
+                        Uploading++;
+                        break;
+                    case UploadForm.StatusMessageStyle.Success:
+                        Uploaded++;
+                        break;
+                    case UploadForm.StatusMessageStyle.Error:
+                        Error++;
+                        break;
+                    case UploadForm.StatusMessageStyle.Abort:
+                        Aborted++;
+                        break;
+                }
+            }
+
+            bool updated = false;
+            string caption = $"All: {All}";
+            if (selAll.Text != caption) { updated = true; selAll.Text = caption; }
+            caption = $"Idle: {Idle}";
+            if (selIdle.Text != caption) { updated = true; selIdle.Text = caption; }
+            caption = $"Detected: {Detected}";
+            if (selDetected.Text != caption) { updated = true; selDetected.Text = caption; }
+            caption = $"Undetected: {Undetected}";
+            if (selUndetected.Text != caption) { updated = true; selUndetected.Text = caption; }
+            caption = $"Uploading: {Uploading}";
+            if (selUploading.Text != caption) { updated = true; selUploading.Text = caption; }
+            caption = $"Uploaded: {Uploaded}";
+            if (selUploaded.Text != caption) { updated = true; selUploaded.Text = caption; }
+            caption = $"Error: {Error}";
+            if (selError.Text != caption) { updated = true; selError.Text = caption; }
+            caption = $"Aborted: {Aborted}";
+            if (selAborted.Text != caption) { updated = true; selAborted.Text = caption; }
+
+            if (updated)
+            {
+                for (int i = 0; i < _selectorList.Count; i++)
+                {
+                    if (i > 0)
+                    {
+                        var prev = _selectorList[i - 1];
+                        _selectorList[i].Left = prev.Left + prev.Width + 5;
+                    }
+                }
+                queueLabel.Left = selAborted.Left + selAborted.Width + 25;
+            }
+        }
+
+        private void clearToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Clear();
+        }
+
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_settingsForm.IsDisposed)
+            {
+                _settingsForm = new SettingsForm();
+            }
+            _settingsForm.Show(this);
         }
     }
 }

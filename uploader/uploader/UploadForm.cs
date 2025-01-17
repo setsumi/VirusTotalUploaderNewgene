@@ -18,7 +18,7 @@ namespace uploader
         private readonly object _formLock = new object();
         private readonly object _threadLock = new object();
 
-        private enum StatusMessageStyle { Normal, Red, Green, Error, Success, Progress }
+        public enum StatusMessageStyle { Normal, Red, Green, Error, Success, ShortWait, Progress, Abort }
         private enum FormStatus { Check, Upload }
 
         private readonly string _path;
@@ -32,6 +32,10 @@ namespace uploader
         private bool _fileExists = false;
         private bool _fileTooLarge = false;
         private bool _fileTooSmall = false;
+
+        private StatusMessageStyle _state = StatusMessageStyle.Normal;
+        public StatusMessageStyle State { get { return _state; } }
+
         // thread
         private bool _largeFile = false;
         private FormStatus _status = FormStatus.Check;
@@ -57,16 +61,17 @@ namespace uploader
             FormInit();
         }
 
-        private void ChangeStatus(string text, StatusMessageStyle status)
+        private void ChangeStatus(string text, StatusMessageStyle mode)
         {
             if (InvokeRequired)
             {
-                this.Invoke(new Action(() => ChangeStatus(text, status)));
+                this.Invoke(new Action(() => ChangeStatus(text, mode)));
                 return;
             }
 
+            _state = mode;
             statusLabel.Text = text;
-            switch (status)
+            switch (mode)
             {
                 case StatusMessageStyle.Normal:
                     statusLabel.BackColor = Color.FromArgb(60, 63, 65);
@@ -88,9 +93,17 @@ namespace uploader
                     statusLabel.BackColor = Color.FromArgb(0, 255, 100);
                     statusLabel.ForeColor = Color.FromArgb(0, 0, 0);
                     break;
+                case StatusMessageStyle.ShortWait:
+                    statusLabel.BackColor = Color.FromArgb(60, 63, 65);
+                    statusLabel.ForeColor = Color.FromArgb(255, 255, 0);
+                    break;
                 case StatusMessageStyle.Progress:
                     statusLabel.BackColor = Color.FromArgb(255, 255, 0);
                     statusLabel.ForeColor = Color.FromArgb(0, 0, 0);
+                    break;
+                case StatusMessageStyle.Abort:
+                    statusLabel.BackColor = Color.FromArgb(255, 0, 0);
+                    statusLabel.ForeColor = Color.FromArgb(255, 255, 255);
                     break;
             }
         }
@@ -127,17 +140,17 @@ namespace uploader
             this.Close();
         }
 
-        private void DisplayError(string error)
+        private void DisplayError(string error, StatusMessageStyle mode = StatusMessageStyle.Error)
         {
             //var messageBox = new DarkMessageBox(error, LocalizationHelper.Base.UploadForm_Error, DarkMessageBoxIcon.Error, DarkDialogButton.Ok);
             //messageBox.ShowDialog();
             if (InvokeRequired)
             {
-                this.Invoke(new Action(() => DisplayError(error)));
+                this.Invoke(new Action(() => DisplayError(error, mode)));
                 return;
             }
 
-            ChangeStatus(error, StatusMessageStyle.Error);
+            ChangeStatus(error, mode);
             SystemSounds.Hand.Play();
         }
 
@@ -171,7 +184,7 @@ namespace uploader
                     return;
                 }
 
-                ChangeStatus(LocalizationHelper.Base.Message_Init, StatusMessageStyle.Normal);
+                ChangeStatus(LocalizationHelper.Base.Message_Init, StatusMessageStyle.ShortWait);
                 _client = new RestClient("https://www.virustotal.com");
 
                 bool result = false;
@@ -188,17 +201,19 @@ namespace uploader
                 if (!_formAborted)
                 {
                     string type, msg;
+                    var mode = StatusMessageStyle.Error;
                     if (ex is ThreadAbortException || ex is System.Threading.Tasks.TaskCanceledException)
                     {
                         type = "";
                         msg = "Operation aborted.";
+                        mode = StatusMessageStyle.Abort;
                     }
                     else
                     {
                         type = ex.GetType() + ": ";
                         msg = ex.Message.Replace("\r", "").Replace("\n", " ");
                     }
-                    DisplayError(type + msg);
+                    DisplayError(type + msg, mode);
                     Finish(Status);
                 }
             }
@@ -220,7 +235,7 @@ namespace uploader
             {
                 try
                 {
-                    ChangeStatus(LocalizationHelper.Base.Message_Check, StatusMessageStyle.Normal);
+                    ChangeStatus(LocalizationHelper.Base.Message_Check, StatusMessageStyle.ShortWait);
 
                     ApiRateWait();
                     var reportRequest = new RestRequest($"api/v3/files/{SHA256}", Method.Get);
