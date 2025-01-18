@@ -26,6 +26,8 @@ namespace uploader
         private readonly List<UploadForm> _uploadList = new List<UploadForm>();
         private readonly List<Label> _selectorList = new List<Label>();
         private readonly DarkContextMenu _doAllMenu = new DarkContextMenu();
+        private FormWindowState _previousWindowState;
+        private bool _formInit = true;
 
         public MainForm()
         {
@@ -77,6 +79,19 @@ namespace uploader
 
             SelectorSelect(selAll);
             SelectorUpdateStats();
+
+            _previousWindowState = WindowState;
+
+            if (Properties.Settings.Default.winWidth != -1)
+                Width = Properties.Settings.Default.winWidth;
+            if (Properties.Settings.Default.winHeight != -1)
+                Height = Properties.Settings.Default.winHeight;
+            if (Properties.Settings.Default.winLeft != -1)
+                Left = Properties.Settings.Default.winLeft;
+            if (Properties.Settings.Default.winTop != -1)
+                Top = Properties.Settings.Default.winTop;
+
+            _formInit = false;
         }
 
         private void moreLabel_Click(object sender, EventArgs e)
@@ -222,8 +237,10 @@ namespace uploader
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            // on exit abort any threads
+            // on exit abort any upload threads
             Clear();
+            // save window placement
+            Properties.Settings.Default.Save();
         }
 
         private void labelMessage_Click(object sender, EventArgs e)
@@ -484,6 +501,44 @@ namespace uploader
         private void MainForm_ResizeBegin(object sender, EventArgs e)
         {
             panelUploads.AutoScroll = false;
+        }
+
+        private void MainForm_Resize(object sender, EventArgs e)
+        {
+            if (_formInit) return;
+
+            if (WindowState != _previousWindowState)
+            {
+                if (WindowState == FormWindowState.Maximized)
+                {
+                    // Maximized
+                    ResizeUploads();
+                }
+                else if (WindowState == FormWindowState.Normal && _previousWindowState == FormWindowState.Maximized)
+                {
+                    //Restored from maximized
+                    ResizeUploads();
+                }
+                _previousWindowState = WindowState;
+            }
+            else if (WindowState == FormWindowState.Normal)
+            {
+                // Resizing
+                Properties.Settings.Default.winWidth = Width;
+                Properties.Settings.Default.winHeight = Height;
+            }
+        }
+
+        private void MainForm_Move(object sender, EventArgs e)
+        {
+            if (_formInit) return;
+
+            if (WindowState == FormWindowState.Normal)
+            {
+                // Moving
+                Properties.Settings.Default.winLeft = Left;
+                Properties.Settings.Default.winTop = Top;
+            }
         }
     }
 }

@@ -301,6 +301,8 @@
             this.ResizeEnd += new System.EventHandler(this.MainForm_ResizeEnd);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.MainForm_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.MainForm_DragEnter);
+            this.Move += new System.EventHandler(this.MainForm_Move);
+            this.Resize += new System.EventHandler(this.MainForm_Resize);
             this.contextMenu1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
