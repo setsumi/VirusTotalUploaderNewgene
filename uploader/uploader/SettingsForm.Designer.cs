@@ -173,7 +173,7 @@
             // 
             // directCheckbox
             // 
-            this.directCheckbox.Location = new System.Drawing.Point(13, 122);
+            this.directCheckbox.Location = new System.Drawing.Point(18, 112);
             this.directCheckbox.Name = "directCheckbox";
             this.directCheckbox.Size = new System.Drawing.Size(221, 16);
             this.directCheckbox.TabIndex = 5;
@@ -187,6 +187,7 @@
             this.languageCombo.Name = "languageCombo";
             this.languageCombo.Size = new System.Drawing.Size(280, 21);
             this.languageCombo.TabIndex = 4;
+            this.languageCombo.Visible = false;
             // 
             // languageLabel
             // 
@@ -197,6 +198,7 @@
             this.languageLabel.Size = new System.Drawing.Size(58, 13);
             this.languageLabel.TabIndex = 3;
             this.languageLabel.Text = "Language:";
+            this.languageLabel.Visible = false;
             // 
             // getApiButton
             // 
