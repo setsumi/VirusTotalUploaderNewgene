@@ -36,7 +36,7 @@ namespace uploader
 
         private StatusMessageStyle _state = StatusMessageStyle.Normal;
         public StatusMessageStyle State { get { return _state; } }
-        public string Operation { get { return uploadButton.Text; } }
+        public string Operation { get { return uploadButton.Enabled ? uploadButton.Text : ""; } }
 
         // thread
         private bool _largeFile = false;
@@ -497,7 +497,10 @@ namespace uploader
 
         public void uploadButton_Click(object sender, EventArgs e)
         {
-            StartStopUploadThread();
+            if (uploadButton.Enabled)
+            {
+                StartStopUploadThread();
+            }
         }
 
         public void FormAbort()

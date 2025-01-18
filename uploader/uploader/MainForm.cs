@@ -442,7 +442,9 @@ namespace uploader
             var operations = new HashSet<string>();
             foreach (UploadForm upload in panelUploads.Controls)
             {
-                operations.Add(upload.Operation);
+                var o = upload.Operation;
+                if (!string.IsNullOrEmpty(o))
+                    operations.Add(o);
             }
 
             _doAllMenu.Items.Clear();
