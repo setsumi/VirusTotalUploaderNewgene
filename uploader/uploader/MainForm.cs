@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Windows.Forms;
 using DarkUI.Controls;
 using DarkUI.Forms;
@@ -24,6 +25,7 @@ namespace uploader
         private int _vertScroll = 0;
         private readonly List<UploadForm> _uploadList = new List<UploadForm>();
         private readonly List<Label> _selectorList = new List<Label>();
+        private readonly DarkContextMenu _doAllMenu = new DarkContextMenu();
 
         public MainForm()
         {
@@ -52,6 +54,7 @@ namespace uploader
             _selectorList.Add(selIdle);
             _selectorList.Add(selDetected);
             _selectorList.Add(selUndetected);
+            _selectorList.Add(selChecking);
             _selectorList.Add(selUploading);
             _selectorList.Add(selUploaded);
             _selectorList.Add(selError);
@@ -61,6 +64,8 @@ namespace uploader
             selDetected.ForeColor = Color.FromArgb(255, 100, 0);
             selUndetected.BackColor = Color.FromArgb(60, 63, 65);
             selUndetected.ForeColor = Color.FromArgb(0, 255, 0);
+            selChecking.BackColor = Color.FromArgb(60, 63, 65);
+            selChecking.ForeColor = Color.FromArgb(255, 255, 0);
             selUploading.BackColor = Color.FromArgb(255, 255, 0);
             selUploading.ForeColor = Color.FromArgb(0, 0, 0);
             selUploaded.BackColor = Color.FromArgb(0, 255, 100);
@@ -106,7 +111,7 @@ namespace uploader
 
                 AddUpload(settings, file);
             }
-            panelUploads_Resize(null, null);
+            ResizeUploads();
             labelMessage.Text = $"{_uploadList.Count} file(s) in total.{(!_addingFiles ? " (Last operation was aborted)" : "")}";
 
             clearToolStripMenuItem.Enabled = true;
@@ -146,6 +151,7 @@ namespace uploader
                 else
                 {
                     _uploadList.Add(upload);
+                    ResizeUploadSingle(upload);
                     upload.Location = new Point(5, _uploaderCount * (upload.Height + 5));
                     panelUploads.Controls.Add(upload);
                     upload.Show();
@@ -186,17 +192,10 @@ namespace uploader
             tmrRateLimiter.Start();
         }
 
-        private void panelUploads_Resize(object sender, EventArgs e)
-        {
-            foreach (Form upload in panelUploads.Controls)
-            {
-                upload.Width = panelUploads.Width - 35;
-            }
-        }
-
         public void Clear()
         {
             clearToolStripMenuItem.Enabled = false;
+            tmrRateLimiter.Stop();
             queueLabel.Text = "Clearing, please wait...";
             Application.DoEvents();
 
@@ -217,6 +216,7 @@ namespace uploader
 
             labelMessage.Text = LocalizationHelper.Base.MainForm_DragFile;
             queueLabel.Text = "";
+            tmrRateLimiter.Start();
             clearToolStripMenuItem.Enabled = true;
         }
 
@@ -291,6 +291,8 @@ namespace uploader
                 item.Font = new Font(item.Font, FontStyle.Regular);
             }
             sel.Font = new Font(sel.Font, FontStyle.Underline);
+            doAllLabel.BackColor = sel.BackColor;
+            doAllLabel.ForeColor = sel.ForeColor;
 
             SelectorUpdateUploads();
         }
@@ -314,6 +316,7 @@ namespace uploader
                 else if (sel == selIdle) { if (upload.State == UploadForm.StatusMessageStyle.Normal) uploads.Add(upload); }
                 else if (sel == selDetected) { if (upload.State == UploadForm.StatusMessageStyle.Red) uploads.Add(upload); }
                 else if (sel == selUndetected) { if (upload.State == UploadForm.StatusMessageStyle.Green) uploads.Add(upload); }
+                else if (sel == selChecking) { if (upload.State == UploadForm.StatusMessageStyle.ShortWait) uploads.Add(upload); }
                 else if (sel == selUploading) { if (upload.State == UploadForm.StatusMessageStyle.Progress) uploads.Add(upload); }
                 else if (sel == selUploaded) { if (upload.State == UploadForm.StatusMessageStyle.Success) uploads.Add(upload); }
                 else if (sel == selError) { if (upload.State == UploadForm.StatusMessageStyle.Error) uploads.Add(upload); }
@@ -334,7 +337,7 @@ namespace uploader
 
         private void SelectorUpdateStats()
         {
-            int All = 0, Idle = 0, Detected = 0, Undetected = 0, Uploading = 0, Uploaded = 0, Error = 0, Aborted = 0;
+            int All = 0, Idle = 0, Detected = 0, Undetected = 0, Checking = 0, Uploading = 0, Uploaded = 0, Error = 0, Aborted = 0;
             foreach (var upload in _uploadList)
             {
                 All++;
@@ -349,6 +352,9 @@ namespace uploader
                         break;
                     case UploadForm.StatusMessageStyle.Green:
                         Undetected++;
+                        break;
+                    case UploadForm.StatusMessageStyle.ShortWait:
+                        Checking++;
                         break;
                     case UploadForm.StatusMessageStyle.Progress:
                         Uploading++;
@@ -372,8 +378,10 @@ namespace uploader
             if (selIdle.Text != caption) { updated = true; selIdle.Text = caption; }
             caption = $"Detected: {Detected}";
             if (selDetected.Text != caption) { updated = true; selDetected.Text = caption; }
-            caption = $"Undetected: {Undetected}";
+            caption = $"Clean: {Undetected}";
             if (selUndetected.Text != caption) { updated = true; selUndetected.Text = caption; }
+            caption = $"Checking: {Checking}";
+            if (selChecking.Text != caption) { updated = true; selChecking.Text = caption; }
             caption = $"Uploading: {Uploading}";
             if (selUploading.Text != caption) { updated = true; selUploading.Text = caption; }
             caption = $"Uploaded: {Uploaded}";
@@ -393,7 +401,8 @@ namespace uploader
                         _selectorList[i].Left = prev.Left + prev.Width + 5;
                     }
                 }
-                queueLabel.Left = selAborted.Left + selAborted.Width + 25;
+                doAllLabel.Left = selAborted.Left + selAborted.Width + 10;
+                queueLabel.Left = doAllLabel.Left + doAllLabel.Width + 25;
             }
         }
 
@@ -409,6 +418,72 @@ namespace uploader
                 _settingsForm = new SettingsForm();
             }
             _settingsForm.Show(this);
+        }
+
+        private void doAllLabel_Click(object sender, EventArgs e)
+        {
+            var operations = new HashSet<string>();
+            foreach (UploadForm upload in panelUploads.Controls)
+            {
+                operations.Add(upload.Operation);
+            }
+
+            _doAllMenu.Items.Clear();
+            foreach (string operation in operations)
+            {
+                var item = _doAllMenu.Items.Add(operation);
+                item.Click += doAllItemClick;
+            }
+
+            _doAllMenu.Show(doAllLabel, 0, doAllLabel.Height);
+        }
+
+        private void doAllItemClick(object sender, EventArgs e)
+        {
+            DoAll((sender as ToolStripItem).Text);
+        }
+
+        private void DoAll(string action)
+        {
+            foreach (UploadForm upload in panelUploads.Controls)
+            {
+                if (upload.Operation == action)
+                {
+                    upload.uploadButton_Click(null, null);
+                }
+            }
+        }
+
+        public void CancelWaiter(Semaphore waiter)
+        {
+            if (waiter != null)
+                _rateLimiter.Remove(waiter);
+        }
+
+        private void ResizeUploadSingle(Form upload)
+        {
+            upload.Width = panelUploads.Width - 35;
+        }
+
+        private void ResizeUploads()
+        {
+            panelUploads.SuspendLayout();
+            foreach (Form upload in panelUploads.Controls)
+            {
+                ResizeUploadSingle(upload);
+            }
+            panelUploads.ResumeLayout();
+        }
+
+        private void MainForm_ResizeEnd(object sender, EventArgs e)
+        {
+            ResizeUploads();
+            panelUploads.AutoScroll = true;
+        }
+
+        private void MainForm_ResizeBegin(object sender, EventArgs e)
+        {
+            panelUploads.AutoScroll = false;
         }
     }
 }

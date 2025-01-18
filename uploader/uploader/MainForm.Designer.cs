@@ -48,6 +48,8 @@
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.doAllLabel = new DarkUI.Controls.DarkLabel();
+            this.selChecking = new DarkUI.Controls.DarkLabel();
             this.contextMenu1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -57,7 +59,7 @@
             this.moreLabel.Cursor = System.Windows.Forms.Cursors.Hand;
             this.moreLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.moreLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.moreLabel.Location = new System.Drawing.Point(670, 9);
+            this.moreLabel.Location = new System.Drawing.Point(698, 9);
             this.moreLabel.Name = "moreLabel";
             this.moreLabel.Size = new System.Drawing.Size(62, 23);
             this.moreLabel.TabIndex = 1;
@@ -76,12 +78,12 @@
             this.panelUploads.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelUploads.Location = new System.Drawing.Point(15, 38);
             this.panelUploads.Name = "panelUploads";
-            this.panelUploads.Size = new System.Drawing.Size(717, 310);
+            this.panelUploads.Size = new System.Drawing.Size(745, 310);
             this.panelUploads.TabIndex = 2;
-            this.panelUploads.Resize += new System.EventHandler(this.panelUploads_Resize);
             // 
             // labelMessage
             // 
+            this.labelMessage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.labelMessage.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.labelMessage.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
             this.labelMessage.Location = new System.Drawing.Point(12, 351);
@@ -101,7 +103,7 @@
             // 
             this.queueLabel.AutoSize = true;
             this.queueLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.queueLabel.Location = new System.Drawing.Point(525, 14);
+            this.queueLabel.Location = new System.Drawing.Point(613, 14);
             this.queueLabel.Name = "queueLabel";
             this.queueLabel.Size = new System.Drawing.Size(63, 13);
             this.queueLabel.TabIndex = 8;
@@ -148,7 +150,7 @@
             this.selUploaded.AutoSize = true;
             this.selUploaded.Cursor = System.Windows.Forms.Cursors.Hand;
             this.selUploaded.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.selUploaded.Location = new System.Drawing.Point(318, 14);
+            this.selUploaded.Location = new System.Drawing.Point(389, 14);
             this.selUploaded.Name = "selUploaded";
             this.selUploaded.Size = new System.Drawing.Size(66, 13);
             this.selUploaded.TabIndex = 12;
@@ -160,7 +162,7 @@
             this.selError.AutoSize = true;
             this.selError.Cursor = System.Windows.Forms.Cursors.Hand;
             this.selError.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.selError.Location = new System.Drawing.Point(390, 14);
+            this.selError.Location = new System.Drawing.Point(461, 14);
             this.selError.Name = "selError";
             this.selError.Size = new System.Drawing.Size(42, 13);
             this.selError.TabIndex = 13;
@@ -172,7 +174,7 @@
             this.selAborted.AutoSize = true;
             this.selAborted.Cursor = System.Windows.Forms.Cursors.Hand;
             this.selAborted.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.selAborted.Location = new System.Drawing.Point(438, 14);
+            this.selAborted.Location = new System.Drawing.Point(509, 14);
             this.selAborted.Name = "selAborted";
             this.selAborted.Size = new System.Drawing.Size(57, 13);
             this.selAborted.TabIndex = 14;
@@ -194,8 +196,9 @@
             // selUploading
             // 
             this.selUploading.AutoSize = true;
+            this.selUploading.Cursor = System.Windows.Forms.Cursors.Hand;
             this.selUploading.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.selUploading.Location = new System.Drawing.Point(244, 14);
+            this.selUploading.Location = new System.Drawing.Point(315, 14);
             this.selUploading.Name = "selUploading";
             this.selUploading.Size = new System.Drawing.Size(68, 13);
             this.selUploading.TabIndex = 16;
@@ -211,14 +214,14 @@
             this.toolStripMenuItem1,
             this.clearToolStripMenuItem});
             this.contextMenu1.Name = "contextMenu1";
-            this.contextMenu1.Size = new System.Drawing.Size(181, 77);
+            this.contextMenu1.Size = new System.Drawing.Size(117, 55);
             // 
             // settingsToolStripMenuItem
             // 
             this.settingsToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
             this.settingsToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
             this.settingsToolStripMenuItem.Text = "Settings";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
             // 
@@ -228,23 +231,51 @@
             this.toolStripMenuItem1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
             this.toolStripMenuItem1.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(113, 6);
             // 
             // clearToolStripMenuItem
             // 
             this.clearToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
             this.clearToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
             this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
-            this.clearToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.clearToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
             this.clearToolStripMenuItem.Text = "Clear";
             this.clearToolStripMenuItem.Click += new System.EventHandler(this.clearToolStripMenuItem_Click);
+            // 
+            // doAllLabel
+            // 
+            this.doAllLabel.AutoSize = true;
+            this.doAllLabel.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.doAllLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.doAllLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.doAllLabel.Location = new System.Drawing.Point(572, 14);
+            this.doAllLabel.Name = "doAllLabel";
+            this.doAllLabel.Size = new System.Drawing.Size(35, 13);
+            this.doAllLabel.TabIndex = 17;
+            this.doAllLabel.Text = "Do All";
+            this.doAllLabel.Click += new System.EventHandler(this.doAllLabel_Click);
+            // 
+            // selChecking
+            // 
+            this.selChecking.AutoSize = true;
+            this.selChecking.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.selChecking.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.selChecking.Location = new System.Drawing.Point(244, 14);
+            this.selChecking.Name = "selChecking";
+            this.selChecking.Size = new System.Drawing.Size(65, 13);
+            this.selChecking.TabIndex = 18;
+            this.selChecking.Text = "selChecking";
+            this.selChecking.Click += new System.EventHandler(this.selAll_Click);
             // 
             // MainForm
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(744, 383);
+            this.ClientSize = new System.Drawing.Size(772, 383);
+            this.Controls.Add(this.selChecking);
+            this.Controls.Add(this.doAllLabel);
+            this.Controls.Add(this.queueLabel);
             this.Controls.Add(this.selUploading);
             this.Controls.Add(this.selIdle);
             this.Controls.Add(this.selAborted);
@@ -253,10 +284,9 @@
             this.Controls.Add(this.selUndetected);
             this.Controls.Add(this.selDetected);
             this.Controls.Add(this.selAll);
-            this.Controls.Add(this.queueLabel);
-            this.Controls.Add(this.moreLabel);
             this.Controls.Add(this.panelUploads);
             this.Controls.Add(this.labelMessage);
+            this.Controls.Add(this.moreLabel);
             this.Cursor = System.Windows.Forms.Cursors.Default;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
@@ -267,6 +297,8 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.Shown += new System.EventHandler(this.MainForm_Shown);
+            this.ResizeBegin += new System.EventHandler(this.MainForm_ResizeBegin);
+            this.ResizeEnd += new System.EventHandler(this.MainForm_ResizeEnd);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.MainForm_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.MainForm_DragEnter);
             this.contextMenu1.ResumeLayout(false);
@@ -294,6 +326,8 @@
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem clearToolStripMenuItem;
+        private DarkUI.Controls.DarkLabel doAllLabel;
+        private DarkUI.Controls.DarkLabel selChecking;
     }
 }
 

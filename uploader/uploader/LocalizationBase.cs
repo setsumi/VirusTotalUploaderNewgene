@@ -2,7 +2,7 @@
 {
     class LocalizationBase
     {
-        public string MainForm_DragFile = "Drag and drop files or folders";
+        public string MainForm_DragFile = "Drag and drop files and/or folders";
         public string MainForm_More = "Menu";
 
         public string SettingsForm_Title = "Settings";

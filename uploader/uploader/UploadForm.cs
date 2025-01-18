@@ -32,9 +32,11 @@ namespace uploader
         private bool _fileExists = false;
         private bool _fileTooLarge = false;
         private bool _fileTooSmall = false;
+        private Semaphore _waiter = null;
 
         private StatusMessageStyle _state = StatusMessageStyle.Normal;
         public StatusMessageStyle State { get { return _state; } }
+        public string Operation { get { return uploadButton.Text; } }
 
         // thread
         private bool _largeFile = false;
@@ -217,6 +219,11 @@ namespace uploader
                     Finish(Status);
                 }
             }
+            finally
+            {
+                _mainForm.CancelWaiter(_waiter);
+                _waiter = null;
+            }
         }
 
         private bool UploadFile(string fullPath)
@@ -370,8 +377,8 @@ namespace uploader
         {
             lock (_threadLock)
             {
-                var waiter = _mainForm.rateLimiter.GetWaiter();
-                waiter.WaitOne();
+                _waiter = _mainForm.rateLimiter.GetWaiter();
+                _waiter.WaitOne();
             }
         }
 
@@ -488,7 +495,7 @@ namespace uploader
             toolTip1.SetToolTip(statusLabel, link);
         }
 
-        private void uploadButton_Click(object sender, EventArgs e)
+        public void uploadButton_Click(object sender, EventArgs e)
         {
             StartStopUploadThread();
         }

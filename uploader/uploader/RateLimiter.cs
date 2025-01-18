@@ -7,8 +7,8 @@ namespace uploader
     internal class RateLimiter
     {
         private readonly object _lock = new object();
-        private readonly Queue<Semaphore> _queue = new Queue<Semaphore>();
         private readonly int _callsPerMinute;
+        private Queue<Semaphore> _queue = new Queue<Semaphore>();
 
         private DateTime _currentMinuteStart;
         private int _callsInCurrentMinute;
@@ -102,6 +102,24 @@ namespace uploader
                     waiter.Dispose();
                 }
                 _queue.Clear();
+            }
+        }
+
+        public void Remove(Semaphore waiter)
+        {
+            lock (_lock)
+            {
+                if (_queue.Contains(waiter))
+                {
+                    var q = new Queue<Semaphore>();
+                    foreach (var item in _queue)
+                    {
+                        if (item != waiter)
+                            q.Enqueue(item);
+                    }
+                    _queue.Clear();
+                    _queue = q;
+                }
             }
         }
     } // class RateLimiter
