@@ -37,6 +37,8 @@ namespace uploader
         private StatusMessageStyle _state = StatusMessageStyle.Normal;
         public StatusMessageStyle State { get { return _state; } }
         public string Operation { get { return uploadButton.Enabled ? uploadButton.Text : ""; } }
+        private long _fileSize = 0;
+        public long FileSize { get { return _fileSize; } }
 
         // thread
         private bool _largeFile = false;
@@ -235,7 +237,6 @@ namespace uploader
             }
 
             dynamic json = null;
-            SetLink($"https://www.virustotal.com/gui/file/{SHA256}");
 
             // Check file
             if (Status == FormStatus.Check)
@@ -277,10 +278,10 @@ namespace uploader
                     // get file info
                     try
                     {
-                        //var reportLink = reportJson.data.links.self.ToString();
-                        //reportLink = reportLink.Replace("api/v3/files", "gui/file");
                         var lastAnalysisResults = json.data.attributes.last_analysis_results as JObject;
-                        string lastAnalysisDate = json.data.attributes.last_analysis_date.ToString();
+                        string lastAnalysisDate = null;
+                        try { lastAnalysisDate = json.data.attributes.last_analysis_date.ToString(); }
+                        catch (RuntimeBinderException) { throw new MyException("Analysis is not finished yet. Wait and retry, or click for details."); }
                         string typeTag = "---";
                         try { typeTag = $"{json.data.attributes.type_tag.ToString()}"; } catch { }
 
@@ -310,12 +311,20 @@ namespace uploader
                         {
                             stat = numberDetected > 0 ? StatusMessageStyle.Red : StatusMessageStyle.Green;
                         }
+                        else
+                        {
+                            stat = StatusMessageStyle.Error;
+                        }
 
+                        SetLink($"https://www.virustotal.com/gui/file/{SHA256}");
                         ChangeStatus($"[{typeTag}] {numberDetected}/{numberTotal} detected ({formattedDate}), click for details.", stat);
                     }
                     catch (Exception ex)
                     {
-                        DisplayError($"Unrecognized responce: {ex.GetType()}: {ex.Message}");
+                        if (ex is MyException)
+                            DisplayError(ex.Message);
+                        else
+                            DisplayError($"Unrecognized responce: {ex.GetType()}: {ex.Message}");
                         return false;
                     }
                 }
@@ -426,7 +435,8 @@ namespace uploader
             if (_fileExists)
             {
                 // check file size
-                double fileSizeInBytes = new FileInfo(_path).Length;
+                _fileSize = new FileInfo(_path).Length;
+                double fileSizeInBytes = _fileSize;
                 double fileSizeInKB = fileSizeInBytes / 1024;
                 double fileSizeInMB = fileSizeInBytes / (1024 * 1024);
 
@@ -457,6 +467,7 @@ namespace uploader
                 }
                 else
                 {
+                    _fileSize = 0;
                     statusLabel.Text = "";
                     uploadButton.Enabled = false;
                 }
@@ -465,6 +476,7 @@ namespace uploader
             }
             else
             {
+                _fileSize = 0;
                 statusLabel.Text = "";
                 fileGroup.Text = $"#{_fileCounter}   File does not exist.";
                 uploadButton.Enabled = false;

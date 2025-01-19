@@ -127,7 +127,12 @@ namespace uploader
                 AddUpload(settings, file);
             }
             ResizeUploads();
-            labelMessage.Text = $"{_uploadList.Count} file(s) in total.{(!_addingFiles ? " (Last operation was aborted)" : "")}";
+            ulong totalSize = 0;
+            foreach (UploadForm upload in _uploadList)
+            {
+                totalSize += (ulong)upload.FileSize;
+            }
+            labelMessage.Text = $"{_uploadList.Count} files in total, {Utils.BytesToHumanReadable(totalSize)} to upload.{(!_addingFiles ? " (Last operation was aborted)" : "")}";
 
             clearToolStripMenuItem.Enabled = true;
             _addingFiles = false;

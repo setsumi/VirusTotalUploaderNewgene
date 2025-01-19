@@ -43,5 +43,34 @@ namespace uploader
                 return BitConverter.ToString(checksum).Replace("-", string.Empty);
             }
         }
+
+        private const long OneKB = 1024;
+        private const long OneMB = OneKB * OneKB;
+        private const long OneGB = OneMB * OneKB;
+        private const long OneTB = OneGB * OneKB;
+        public static string BytesToHumanReadable(ulong bytes) => bytes switch
+        {
+            (< OneKB) => $"{bytes} B",
+            (>= OneKB) and (< OneMB) => $"{(decimal)bytes / OneKB:F2} KB",
+            (>= OneMB) and (< OneGB) => $"{(decimal)bytes / OneMB:F2} MB",
+            (>= OneGB) and (< OneTB) => $"{(decimal)bytes / OneGB:F2} GB",
+            (>= OneTB) => $"{(decimal)bytes / OneTB:F2} TB"
+            //...
+        };
+    }
+
+    [Serializable]
+    public class MyException : Exception
+    {
+        public MyException()
+        { }
+
+        public MyException(string message)
+            : base(message)
+        { }
+
+        public MyException(string message, Exception innerException)
+            : base(message, innerException)
+        { }
     }
 }

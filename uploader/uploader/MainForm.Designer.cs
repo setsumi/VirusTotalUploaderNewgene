@@ -33,7 +33,6 @@
             this.moreLabel = new DarkUI.Controls.DarkLabel();
             this.panelUploads = new System.Windows.Forms.Panel();
             this.labelMessage = new DarkUI.Controls.DarkLabel();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.tmrRateLimiter = new System.Windows.Forms.Timer(this.components);
             this.queueLabel = new DarkUI.Controls.DarkLabel();
             this.selAll = new DarkUI.Controls.DarkLabel();
@@ -76,22 +75,23 @@
             this.panelUploads.AutoScrollMargin = new System.Drawing.Size(5, 5);
             this.panelUploads.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
             this.panelUploads.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelUploads.Location = new System.Drawing.Point(15, 38);
+            this.panelUploads.Location = new System.Drawing.Point(12, 38);
             this.panelUploads.Name = "panelUploads";
-            this.panelUploads.Size = new System.Drawing.Size(745, 310);
+            this.panelUploads.Size = new System.Drawing.Size(748, 325);
             this.panelUploads.TabIndex = 2;
             // 
             // labelMessage
             // 
             this.labelMessage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.labelMessage.AutoSize = true;
             this.labelMessage.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.labelMessage.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.labelMessage.Location = new System.Drawing.Point(12, 351);
+            this.labelMessage.Location = new System.Drawing.Point(12, 366);
             this.labelMessage.Name = "labelMessage";
-            this.labelMessage.Size = new System.Drawing.Size(322, 23);
+            this.labelMessage.Size = new System.Drawing.Size(82, 13);
             this.labelMessage.TabIndex = 6;
             this.labelMessage.Text = "drag file here";
-            this.labelMessage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.labelMessage.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.labelMessage.Click += new System.EventHandler(this.labelMessage_Click);
             // 
             // tmrRateLimiter
@@ -312,7 +312,6 @@
         #endregion
         private DarkUI.Controls.DarkLabel moreLabel;
         private DarkUI.Controls.DarkLabel labelMessage;
-        private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.Timer tmrRateLimiter;
         private DarkUI.Controls.DarkLabel queueLabel;
         public System.Windows.Forms.Panel panelUploads;
