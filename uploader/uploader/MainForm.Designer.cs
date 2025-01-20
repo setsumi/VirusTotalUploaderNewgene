@@ -50,6 +50,7 @@
             this.doAllLabel = new DarkUI.Controls.DarkLabel();
             this.selChecking = new DarkUI.Controls.DarkLabel();
             this.labelSounds = new DarkUI.Controls.DarkLabel();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.contextMenu1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -109,6 +110,7 @@
             this.queueLabel.Size = new System.Drawing.Size(63, 13);
             this.queueLabel.TabIndex = 8;
             this.queueLabel.Text = "queueLabel";
+            this.toolTip1.SetToolTip(this.queueLabel, "active pending");
             // 
             // selAll
             // 
@@ -345,6 +347,7 @@
         private DarkUI.Controls.DarkLabel doAllLabel;
         private DarkUI.Controls.DarkLabel selChecking;
         private DarkUI.Controls.DarkLabel labelSounds;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }
 

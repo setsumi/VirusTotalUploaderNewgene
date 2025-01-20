@@ -8,11 +8,11 @@ namespace uploader
     {
         private readonly object _lock = new object();
         private readonly int _callsPerMinute;
-        private Queue<Semaphore> _queue = new Queue<Semaphore>();
+        private Queue<Semaphore> _queued = new Queue<Semaphore>();
+        private readonly List<Semaphore> _active = new List<Semaphore>();
 
         private DateTime _currentMinuteStart;
-        private int _callsInCurrentMinute;
-        private bool _active = false;
+        private bool _activated = false;
 
         // Constructor
         public RateLimiter(int callsPerMinute)
@@ -20,29 +20,30 @@ namespace uploader
             _callsPerMinute = callsPerMinute;
         }
 
-        public int GetQueueLength()
+        public void GetQueueLength(out int active, out int pending)
         {
             lock (_lock)
             {
-                return _queue.Count;
+                active = _active.Count;
+                pending = _queued.Count;
             }
         }
 
         private void Enqueue(Semaphore waiter)
         {
-            if (_callsInCurrentMinute < _callsPerMinute)
+            if (_active.Count < _callsPerMinute)
             {
                 // Do call
-                _callsInCurrentMinute++;
+                _active.Add(waiter);
                 waiter.Release(1);
             }
-            else if (_callsInCurrentMinute == _callsPerMinute)
+            else if (_active.Count == _callsPerMinute)
             {
-                _queue.Enqueue(waiter);
+                _queued.Enqueue(waiter);
             }
             else
             {
-                throw new InvalidOperationException($"Calls in current minute: ({_callsInCurrentMinute}) is out of bounds: ({_callsPerMinute})");
+                throw new InvalidOperationException($"Active count: ({_active.Count}) is out of bounds: ({_callsPerMinute})");
             }
         }
 
@@ -50,9 +51,9 @@ namespace uploader
         {
             lock (_lock)
             {
-                if (!_active)
+                if (!_activated)
                 {
-                    _active = true;
+                    _activated = true;
                     ResetMinute();
                 }
 
@@ -65,28 +66,28 @@ namespace uploader
         private void ResetMinute()
         {
             _currentMinuteStart = DateTime.UtcNow;
-            _callsInCurrentMinute = 0;
+            _active.RemoveAll(item => item == null);
         }
 
         public void TimeTick()
         {
             lock (_lock)
             {
-                if (!_active) return;
+                if (!_activated) return;
 
                 var now = DateTime.UtcNow;
                 if ((now - _currentMinuteStart).TotalMinutes >= 1.05) // minute padding just in case
                 {
                     ResetMinute();
 
-                    for (int i = 0; i < _callsPerMinute; i++)
+                    for (int i = _active.Count; i < _callsPerMinute; i++)
                     {
                         Semaphore waiter = null;
-                        try { waiter = _queue.Dequeue(); }
+                        try { waiter = _queued.Dequeue(); }
                         catch (InvalidOperationException) { break; }
 
                         // Do call
-                        _callsInCurrentMinute++;
+                        _active.Add(waiter);
                         waiter.Release(1);
                     }
                 }
@@ -97,28 +98,41 @@ namespace uploader
         {
             lock (_lock)
             {
-                foreach (var waiter in _queue)
+                foreach (var waiter in _active)
+                {
+                    waiter?.Dispose();
+                }
+                _active.Clear();
+
+                foreach (var waiter in _queued)
                 {
                     waiter.Dispose();
                 }
-                _queue.Clear();
+                _queued.Clear();
             }
         }
 
-        public void Remove(Semaphore waiter)
+        public void ReleaseWaiter(Semaphore waiter)
         {
             lock (_lock)
             {
-                if (_queue.Contains(waiter))
+                if (waiter == null) throw new InvalidOperationException($"Waiter is null");
+                waiter.Dispose();
+
+                if (_active.Contains(waiter))
+                {
+                    _active[_active.IndexOf(waiter)] = null;
+                }
+                else if (_queued.Contains(waiter))
                 {
                     var q = new Queue<Semaphore>();
-                    foreach (var item in _queue)
+                    foreach (var item in _queued)
                     {
                         if (item != waiter)
                             q.Enqueue(item);
                     }
-                    _queue.Clear();
-                    _queue = q;
+                    _queued.Clear();
+                    _queued = q;
                 }
             }
         }

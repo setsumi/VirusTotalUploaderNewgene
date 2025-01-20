@@ -272,8 +272,12 @@ namespace uploader
 
             SaveScroll();
             _rateLimiter.TimeTick();
-            int len = _rateLimiter.GetQueueLength();
-            string text = len == 0 ? "" : $"Pending requests: {len}";
+            _rateLimiter.GetQueueLength(out int active, out int pending);
+            string text = "";
+            if (active != 0 || pending != 0)
+            {
+                text = $"Requests: {(active)} {(pending)}";
+            }
             if (queueLabel.Text != text)
             {
                 queueLabel.Text = text;
@@ -488,12 +492,6 @@ namespace uploader
                     upload.uploadButton_Click(null, null);
                 }
             }
-        }
-
-        public void CancelWaiter(Semaphore waiter)
-        {
-            if (waiter != null)
-                _rateLimiter.Remove(waiter);
         }
 
         private void ResizeUploadSingle(Form upload)

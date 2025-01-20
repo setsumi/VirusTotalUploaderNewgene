@@ -224,8 +224,7 @@ namespace uploader
             }
             finally
             {
-                _mainForm.CancelWaiter(_waiter);
-                _waiter = null;
+                ApiRateRelease();
             }
         }
 
@@ -253,6 +252,7 @@ namespace uploader
 
                     var reportResponse = _client.Execute(reportRequest);
                     var reportContent = reportResponse.Content;
+                    ApiRateRelease();
                     //debug
                     //File.WriteAllText("response-check.json", reportContent);
                     json = JsonConvert.DeserializeObject(reportContent);
@@ -349,6 +349,7 @@ namespace uploader
 
                     var uploadUrlResponse = _client.Execute(uploadUrlRequest);
                     var uploadUrlContent = uploadUrlResponse.Content;
+                    ApiRateRelease();
 
                     json = JsonConvert.DeserializeObject(uploadUrlContent);
                     uploadUri = json.data.ToString();
@@ -364,6 +365,7 @@ namespace uploader
                 var task = _client.ExecuteAsync(scanRequest, _cancelTokenSource.Token);
                 // this will wait for completion or cancel/error
                 var scanResponse = task.Result;
+                ApiRateRelease();
                 _cancelTokenSource = null;
                 if (scanResponse.ErrorException != null)
                     throw scanResponse.ErrorException;
@@ -389,6 +391,14 @@ namespace uploader
             {
                 _waiter = _mainForm.rateLimiter.GetWaiter();
                 _waiter.WaitOne();
+            }
+        }
+
+        private void ApiRateRelease()
+        {
+            lock (_threadLock)
+            {
+                _mainForm.rateLimiter.ReleaseWaiter(_waiter);
             }
         }
 
