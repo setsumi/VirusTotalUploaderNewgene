@@ -10,7 +10,8 @@ namespace uploader
         public string Language = "";
         public bool DirectUpload = false;
         public int CallsPerMinute = 4;
-        public int MinimumFileSize = 3;
+        public int MinimumFileSize = 5;
+        public bool Sounds = true;
 
         public static string GetSettingsFilename()
         {

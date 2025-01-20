@@ -22,6 +22,7 @@ namespace uploader
         private enum FormStatus { Check, Upload }
 
         private readonly string _path;
+        public string FullPath { get { return _path; } }
         private readonly MainForm _mainForm;
         private readonly Settings _settings;
         private Thread _uploadThread;
@@ -53,7 +54,7 @@ namespace uploader
         {
             _mainForm = mainForm;
             _settings = settings;
-            _path = path;
+            _path = Path.GetFullPath(path);
             _fileCounter = counter;
 
             // for the embedding of this form into main form's panel
@@ -155,7 +156,7 @@ namespace uploader
             }
 
             ChangeStatus(error, mode);
-            SystemSounds.Hand.Play();
+            if (_settings.Sounds) SystemSounds.Hand.Play();
         }
 
         private void DisplaySuccess(string success)
@@ -167,7 +168,7 @@ namespace uploader
             }
 
             ChangeStatus(success, StatusMessageStyle.Success);
-            SystemSounds.Beep.Play();
+            if (_settings.Sounds) SystemSounds.Beep.Play();
         }
 
         // Thread function

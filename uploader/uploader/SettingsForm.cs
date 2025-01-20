@@ -21,6 +21,7 @@ namespace uploader
             directCheckbox.Checked = settings.DirectUpload;
             callsPerMinuteUpDown.Value = settings.CallsPerMinute;
             minSizeUpDown.Value = settings.MinimumFileSize;
+            soundCheckbox.Checked = settings.Sounds;
 
             var languages = LocalizationHelper.GetLanguages();
             languageCombo.Items.Clear();
@@ -78,7 +79,8 @@ namespace uploader
                 Language = languageCombo.Text,
                 DirectUpload = directCheckbox.Checked,
                 CallsPerMinute = (int)callsPerMinuteUpDown.Value,
-                MinimumFileSize = (int)minSizeUpDown.Value
+                MinimumFileSize = (int)minSizeUpDown.Value,
+                Sounds = soundCheckbox.Checked
             };
 
             Settings.SaveSettings(settings);

@@ -46,6 +46,7 @@
             this.saveButton = new DarkUI.Controls.DarkButton();
             this.openButton = new DarkUI.Controls.DarkButton();
             this.statusLabel = new DarkUI.Controls.DarkLabel();
+            this.soundCheckbox = new DarkUI.Controls.DarkCheckBox();
             this.generalGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.minSizeUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.callsPerMinuteUpDown)).BeginInit();
@@ -54,6 +55,7 @@
             // generalGroupBox
             // 
             this.generalGroupBox.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
+            this.generalGroupBox.Controls.Add(this.soundCheckbox);
             this.generalGroupBox.Controls.Add(this.darkLabel4);
             this.generalGroupBox.Controls.Add(this.minSizeUpDown);
             this.generalGroupBox.Controls.Add(this.darkLabel3);
@@ -69,7 +71,7 @@
             this.generalGroupBox.Controls.Add(this.apiLabel);
             this.generalGroupBox.Location = new System.Drawing.Point(13, 12);
             this.generalGroupBox.Name = "generalGroupBox";
-            this.generalGroupBox.Size = new System.Drawing.Size(483, 206);
+            this.generalGroupBox.Size = new System.Drawing.Size(483, 187);
             this.generalGroupBox.TabIndex = 0;
             this.generalGroupBox.TabStop = false;
             this.generalGroupBox.Text = "settings";
@@ -78,7 +80,7 @@
             // 
             this.darkLabel4.AutoSize = true;
             this.darkLabel4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.darkLabel4.Location = new System.Drawing.Point(230, 176);
+            this.darkLabel4.Location = new System.Drawing.Point(222, 117);
             this.darkLabel4.Name = "darkLabel4";
             this.darkLabel4.Size = new System.Drawing.Size(33, 13);
             this.darkLabel4.TabIndex = 12;
@@ -86,7 +88,7 @@
             // 
             // minSizeUpDown
             // 
-            this.minSizeUpDown.Location = new System.Drawing.Point(164, 174);
+            this.minSizeUpDown.Location = new System.Drawing.Point(156, 115);
             this.minSizeUpDown.Maximum = new decimal(new int[] {
             99999,
             0,
@@ -110,7 +112,7 @@
             // 
             this.darkLabel3.AutoSize = true;
             this.darkLabel3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.darkLabel3.Location = new System.Drawing.Point(32, 176);
+            this.darkLabel3.Location = new System.Drawing.Point(24, 117);
             this.darkLabel3.Name = "darkLabel3";
             this.darkLabel3.Size = new System.Drawing.Size(117, 13);
             this.darkLabel3.TabIndex = 10;
@@ -118,7 +120,7 @@
             // 
             // callsPerMinuteUpDown
             // 
-            this.callsPerMinuteUpDown.Location = new System.Drawing.Point(164, 142);
+            this.callsPerMinuteUpDown.Location = new System.Drawing.Point(156, 83);
             this.callsPerMinuteUpDown.Maximum = new decimal(new int[] {
             999,
             0,
@@ -142,7 +144,7 @@
             // 
             this.darkLabel2.AutoSize = true;
             this.darkLabel2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.darkLabel2.Location = new System.Drawing.Point(15, 144);
+            this.darkLabel2.Location = new System.Drawing.Point(7, 85);
             this.darkLabel2.Name = "darkLabel2";
             this.darkLabel2.Size = new System.Drawing.Size(143, 13);
             this.darkLabel2.TabIndex = 6;
@@ -154,7 +156,7 @@
             this.apiLimitsLabel.Cursor = System.Windows.Forms.Cursors.Hand;
             this.apiLimitsLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.apiLimitsLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.apiLimitsLabel.Location = new System.Drawing.Point(305, 144);
+            this.apiLimitsLabel.Location = new System.Drawing.Point(297, 85);
             this.apiLimitsLabel.Name = "apiLimitsLabel";
             this.apiLimitsLabel.Size = new System.Drawing.Size(49, 13);
             this.apiLimitsLabel.TabIndex = 9;
@@ -165,7 +167,7 @@
             // 
             this.darkLabel1.AutoSize = true;
             this.darkLabel1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.darkLabel1.Location = new System.Drawing.Point(240, 144);
+            this.darkLabel1.Location = new System.Drawing.Point(232, 85);
             this.darkLabel1.Name = "darkLabel1";
             this.darkLabel1.Size = new System.Drawing.Size(59, 13);
             this.darkLabel1.TabIndex = 8;
@@ -173,7 +175,7 @@
             // 
             // directCheckbox
             // 
-            this.directCheckbox.Location = new System.Drawing.Point(18, 112);
+            this.directCheckbox.Location = new System.Drawing.Point(10, 155);
             this.directCheckbox.Name = "directCheckbox";
             this.directCheckbox.Size = new System.Drawing.Size(221, 16);
             this.directCheckbox.TabIndex = 5;
@@ -183,9 +185,9 @@
             // 
             this.languageCombo.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             this.languageCombo.FormattingEnabled = true;
-            this.languageCombo.Location = new System.Drawing.Point(74, 85);
+            this.languageCombo.Location = new System.Drawing.Point(400, 47);
             this.languageCombo.Name = "languageCombo";
-            this.languageCombo.Size = new System.Drawing.Size(280, 21);
+            this.languageCombo.Size = new System.Drawing.Size(77, 21);
             this.languageCombo.TabIndex = 4;
             this.languageCombo.Visible = false;
             // 
@@ -193,7 +195,7 @@
             // 
             this.languageLabel.AutoSize = true;
             this.languageLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.languageLabel.Location = new System.Drawing.Point(10, 88);
+            this.languageLabel.Location = new System.Drawing.Point(336, 50);
             this.languageLabel.Name = "languageLabel";
             this.languageLabel.Size = new System.Drawing.Size(58, 13);
             this.languageLabel.TabIndex = 3;
@@ -234,7 +236,7 @@
             // 
             this.saveButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.saveButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.saveButton.Location = new System.Drawing.Point(13, 224);
+            this.saveButton.Location = new System.Drawing.Point(13, 208);
             this.saveButton.Name = "saveButton";
             this.saveButton.Padding = new System.Windows.Forms.Padding(5);
             this.saveButton.Size = new System.Drawing.Size(75, 23);
@@ -245,7 +247,7 @@
             // openButton
             // 
             this.openButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.openButton.Location = new System.Drawing.Point(94, 224);
+            this.openButton.Location = new System.Drawing.Point(94, 208);
             this.openButton.Name = "openButton";
             this.openButton.Padding = new System.Windows.Forms.Padding(5);
             this.openButton.Size = new System.Drawing.Size(153, 23);
@@ -258,18 +260,27 @@
             this.statusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.statusLabel.AutoSize = true;
             this.statusLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.statusLabel.Location = new System.Drawing.Point(253, 229);
+            this.statusLabel.Location = new System.Drawing.Point(253, 213);
             this.statusLabel.Name = "statusLabel";
             this.statusLabel.Size = new System.Drawing.Size(74, 13);
             this.statusLabel.TabIndex = 3;
             this.statusLabel.Text = "no settings file";
             this.statusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // soundCheckbox
+            // 
+            this.soundCheckbox.AutoSize = true;
+            this.soundCheckbox.Location = new System.Drawing.Point(339, 155);
+            this.soundCheckbox.Name = "soundCheckbox";
+            this.soundCheckbox.Size = new System.Drawing.Size(116, 17);
+            this.soundCheckbox.TabIndex = 13;
+            this.soundCheckbox.Text = "Sound notifications";
+            // 
             // SettingsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(508, 259);
+            this.ClientSize = new System.Drawing.Size(508, 243);
             this.Controls.Add(this.statusLabel);
             this.Controls.Add(this.openButton);
             this.Controls.Add(this.saveButton);
@@ -312,5 +323,6 @@
         private DarkUI.Controls.DarkLabel darkLabel4;
         private DarkUI.Controls.DarkNumericUpDown minSizeUpDown;
         private DarkUI.Controls.DarkLabel darkLabel3;
+        private DarkUI.Controls.DarkCheckBox soundCheckbox;
     }
 }

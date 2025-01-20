@@ -22,6 +22,7 @@ namespace uploader
         private int _uploaderCount = 0;
         private bool _addingFiles = false;
         private readonly RateLimiter _rateLimiter;
+        private Settings _settings;
         private int _vertScroll = 0;
         private readonly List<UploadForm> _uploadList = new List<UploadForm>();
         private readonly List<Label> _selectorList = new List<Label>();
@@ -33,8 +34,8 @@ namespace uploader
         {
             InitializeComponent();
 
-            var settings = Settings.LoadSettings();
-            _rateLimiter = new RateLimiter(settings.CallsPerMinute);
+            _settings = Settings.LoadSettings();
+            _rateLimiter = new RateLimiter(_settings.CallsPerMinute);
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -91,6 +92,8 @@ namespace uploader
             if (Properties.Settings.Default.winTop != -1)
                 Top = Properties.Settings.Default.winTop;
 
+            UpdateSounds();
+
             _formInit = false;
         }
 
@@ -107,15 +110,15 @@ namespace uploader
         private void MainForm_DragDrop(object sender, DragEventArgs e)
         {
             ResetScroll();
-            var settings = Settings.LoadSettings();
             var arguments = (string[])e.Data.GetData(DataFormats.FileDrop);
-            showMultipleUploadForms(arguments, settings);
+            showMultipleUploadForms(arguments, _settings);
         }
 
         private void showMultipleUploadForms(string[] files, Settings settings)
         {
             _addingFiles = true;
             clearToolStripMenuItem.Enabled = false;
+            labelMessage.ForeColor = Color.FromArgb(255, 255, 0);
 
             int i = 0;
             foreach (var file in files)
@@ -134,6 +137,7 @@ namespace uploader
             }
             labelMessage.Text = $"{_uploadList.Count} files in total, {Utils.BytesToHumanReadable(totalSize)} to upload.{(!_addingFiles ? " (Last operation was aborted)" : "")}";
 
+            labelMessage.ForeColor = Color.FromArgb(220, 220, 220);
             clearToolStripMenuItem.Enabled = true;
             _addingFiles = false;
         }
@@ -163,7 +167,7 @@ namespace uploader
             {
                 // file or does't exist
                 var upload = new UploadForm(this, settings, path, _uploadList.Count + 1);
-                if (upload.FileIsTooSmall() || FileIsDuplicate(upload.SHA256))
+                if (upload.FileIsTooSmall() || UploadIsDuplicate(upload))
                 {
                     upload.Close();
                     upload.Dispose();
@@ -180,26 +184,34 @@ namespace uploader
             }
         }
 
-        private bool FileIsDuplicate(string sha256)
+        private bool UploadIsDuplicate(UploadForm newOne)
         {
-            if (string.IsNullOrEmpty(sha256)) return false;
             foreach (UploadForm upload in panelUploads.Controls)
             {
-                if (upload.SHA256 == sha256) return true;
+                if (upload.FullPath == newOne.FullPath)
+                    return true;
+            }
+
+            if (string.IsNullOrEmpty(newOne.SHA256))
+                return false;
+
+            foreach (UploadForm upload in panelUploads.Controls)
+            {
+                if (upload.SHA256 == newOne.SHA256)
+                    return true;
             }
             return false;
         }
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
-            var settings = Settings.LoadSettings();
             var args = Environment.GetCommandLineArgs();
             var numArgs = args.Length - 1; // don't count exe itself
 
             if (numArgs >= 1 && numArgs <= _maxArgs)
             {
                 var files = args.ToList().GetRange(1, args.Length - 1).ToArray();
-                showMultipleUploadForms(files, settings);
+                showMultipleUploadForms(files, _settings);
             }
             else if (numArgs > _maxArgs)
             {
@@ -424,7 +436,7 @@ namespace uploader
                     }
                 }
                 doAllLabel.Left = selAborted.Left + selAborted.Width + 10;
-                queueLabel.Left = doAllLabel.Left + doAllLabel.Width + 25;
+                queueLabel.Left = doAllLabel.Left + doAllLabel.Width + 10;
             }
         }
 
@@ -546,6 +558,17 @@ namespace uploader
                 Properties.Settings.Default.winLeft = Left;
                 Properties.Settings.Default.winTop = Top;
             }
+        }
+
+        private void labelSounds_Click(object sender, EventArgs e)
+        {
+            _settings.Sounds = !_settings.Sounds;
+            UpdateSounds();
+        }
+
+        private void UpdateSounds()
+        {
+            labelSounds.Font = new Font(labelSounds.Font, _settings.Sounds ? FontStyle.Regular : FontStyle.Strikeout);
         }
     }
 }

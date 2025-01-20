@@ -49,6 +49,7 @@
             this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.doAllLabel = new DarkUI.Controls.DarkLabel();
             this.selChecking = new DarkUI.Controls.DarkLabel();
+            this.labelSounds = new DarkUI.Controls.DarkLabel();
             this.contextMenu1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -267,12 +268,26 @@
             this.selChecking.Text = "selChecking";
             this.selChecking.Click += new System.EventHandler(this.selAll_Click);
             // 
+            // labelSounds
+            // 
+            this.labelSounds.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.labelSounds.AutoSize = true;
+            this.labelSounds.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.labelSounds.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.labelSounds.Location = new System.Drawing.Point(698, 366);
+            this.labelSounds.Name = "labelSounds";
+            this.labelSounds.Size = new System.Drawing.Size(49, 13);
+            this.labelSounds.TabIndex = 19;
+            this.labelSounds.Text = " Sounds ";
+            this.labelSounds.Click += new System.EventHandler(this.labelSounds_Click);
+            // 
             // MainForm
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(772, 383);
+            this.Controls.Add(this.labelSounds);
             this.Controls.Add(this.selChecking);
             this.Controls.Add(this.doAllLabel);
             this.Controls.Add(this.queueLabel);
@@ -329,6 +344,7 @@
         private System.Windows.Forms.ToolStripMenuItem clearToolStripMenuItem;
         private DarkUI.Controls.DarkLabel doAllLabel;
         private DarkUI.Controls.DarkLabel selChecking;
+        private DarkUI.Controls.DarkLabel labelSounds;
     }
 }
 
