@@ -1,15 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace uploader
 {
     internal class RateLimiter
     {
-        private readonly object _lock = new object();
+        private class WaiterObj
+        {
+            public Semaphore Waiter;
+            public bool Upload;
+            // Constructor
+            public WaiterObj(Semaphore waiter, bool upload)
+            { Waiter = waiter; Upload = upload; }
+        }
+
+        private readonly object _lock = new();
         private readonly int _callsPerMinute;
-        private Queue<Semaphore> _queued = new Queue<Semaphore>();
-        private readonly List<Semaphore> _active = new List<Semaphore>();
+        private readonly List<WaiterObj> _queued = new();
+        private readonly List<WaiterObj> _active = new();
 
         private DateTime _currentMinuteStart;
         private bool _activated = false;
@@ -20,34 +30,51 @@ namespace uploader
             _callsPerMinute = callsPerMinute;
         }
 
-        public void GetQueueLength(out int active, out int pending)
+        public void GetQueueLength(out int active, out int activeTotal, out int pending)
         {
             lock (_lock)
             {
-                active = _active.Count;
+                active = _active.Count(item => item.Waiter != null);
+                activeTotal = _active.Count;
                 pending = _queued.Count;
             }
         }
 
-        private void Enqueue(Semaphore waiter)
+        private int ActiveUploads()
         {
-            if (_active.Count < _callsPerMinute)
-            {
-                // Do call
-                _active.Add(waiter);
-                waiter.Release(1);
-            }
-            else if (_active.Count == _callsPerMinute)
-            {
-                _queued.Enqueue(waiter);
-            }
-            else
+            return _active.Count(item => item.Upload);
+        }
+
+        private int QueuedNonUploads()
+        {
+            return _queued.Count(item => !item.Upload);
+        }
+
+        private void Enqueue(WaiterObj wo)
+        {
+            if (_active.Count > _callsPerMinute)
             {
                 throw new InvalidOperationException($"Active count: ({_active.Count}) is out of bounds: ({_callsPerMinute})");
             }
+            else if (_active.Count == _callsPerMinute)
+            {
+                _queued.Add(wo);
+            }
+            else // _active.Count < _callsPerMinute
+            {
+                if (!wo.Upload || ActiveUploads() == 0)
+                {
+                    // Do call
+                    DoCall(wo);
+                }
+                else
+                {
+                    _queued.Add(wo);
+                }
+            }
         }
 
-        public Semaphore GetWaiter()
+        public Semaphore GetWaiter(bool upload)
         {
             lock (_lock)
             {
@@ -57,16 +84,16 @@ namespace uploader
                     ResetMinute();
                 }
 
-                Semaphore waiter = new Semaphore(0, 1);
-                Enqueue(waiter);
-                return waiter;
+                WaiterObj wo = new(new Semaphore(0, 1), upload);
+                Enqueue(wo);
+                return wo.Waiter;
             }
         }
 
         private void ResetMinute()
         {
             _currentMinuteStart = DateTime.UtcNow;
-            _active.RemoveAll(item => item == null);
+            _active.RemoveAll(item => item.Waiter == null);
         }
 
         public void TimeTick()
@@ -80,33 +107,60 @@ namespace uploader
                 {
                     ResetMinute();
 
-                    for (int i = _active.Count; i < _callsPerMinute; i++)
+                    var temp = _queued.ToList();
+                    foreach (var wo in temp)
                     {
-                        Semaphore waiter = null;
-                        try { waiter = _queued.Dequeue(); }
-                        catch (InvalidOperationException) { break; }
-
+                        if (_active.Count < _callsPerMinute)
+                        {
+                            if (!wo.Upload || ActiveUploads() == 0)
+                            {
+                                _queued.Remove(wo);
+                                // Do call
+                                DoCall(wo);
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    temp.Clear();
+                }
+                else
+                {
+                    // activate uploads quickly if only uploads are queued
+                    // otherwise will end up waiting a minute after each upload despite having free rate slots
+                    if (_active.Count < _callsPerMinute && _queued.Count > 0 &&
+                         _active.Count(item => item.Upload && item.Waiter != null) == 0 && QueuedNonUploads() == 0)
+                    {
+                        var wo = _queued[0];
+                        _queued.RemoveAt(0);
                         // Do call
-                        _active.Add(waiter);
-                        waiter.Release(1);
+                        DoCall(wo);
                     }
                 }
             }
+        }
+
+        private void DoCall(WaiterObj wo)
+        {
+            _active.Add(wo);
+            wo.Waiter.Release(1);
         }
 
         public void Clear()
         {
             lock (_lock)
             {
-                foreach (var waiter in _active)
+                foreach (var wo in _active)
                 {
-                    waiter?.Dispose();
+                    wo.Waiter?.Dispose();
                 }
                 _active.Clear();
 
-                foreach (var waiter in _queued)
+                foreach (var wo in _queued)
                 {
-                    waiter.Dispose();
+                    wo.Waiter.Dispose();
                 }
                 _queued.Clear();
             }
@@ -119,20 +173,14 @@ namespace uploader
                 if (waiter == null) throw new InvalidOperationException($"Waiter is null");
                 waiter.Dispose();
 
-                if (_active.Contains(waiter))
+                int index = _active.FindIndex(item => item.Waiter == waiter);
+                if (index != -1)
                 {
-                    _active[_active.IndexOf(waiter)] = null;
+                    _active[index].Waiter = null;
                 }
-                else if (_queued.Contains(waiter))
+                else if (_queued.Any(item => item.Waiter == waiter))
                 {
-                    var q = new Queue<Semaphore>();
-                    foreach (var item in _queued)
-                    {
-                        if (item != waiter)
-                            q.Enqueue(item);
-                    }
-                    _queued.Clear();
-                    _queued = q;
+                    _queued.RemoveAll(item => item.Waiter == waiter);
                 }
             }
         }

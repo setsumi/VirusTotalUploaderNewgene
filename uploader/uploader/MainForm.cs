@@ -272,11 +272,11 @@ namespace uploader
 
             SaveScroll();
             _rateLimiter.TimeTick();
-            _rateLimiter.GetQueueLength(out int active, out int pending);
+            _rateLimiter.GetQueueLength(out int active, out int activeTotal, out int pending);
             string text = "";
             if (active != 0 || pending != 0)
             {
-                text = $"Requests: {(active)} {(pending)}";
+                text = $"Requests: {active}/{activeTotal} {pending}";
             }
             if (queueLabel.Text != text)
             {

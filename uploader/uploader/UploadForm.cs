@@ -355,7 +355,7 @@ namespace uploader
                     uploadUri = json.data.ToString();
                 }
 
-                ApiRateWait();
+                ApiRateWait(true);
                 var scanRequest = new RestRequest(uploadUri, Method.Post);
                 scanRequest.AddHeader("x-apikey", _settings.ApiKey);
                 scanRequest.AddFile("file", fullPath);
@@ -385,11 +385,11 @@ namespace uploader
             return true;
         }
 
-        private void ApiRateWait()
+        private void ApiRateWait(bool upload = false)
         {
             lock (_threadLock)
             {
-                _waiter = _mainForm.rateLimiter.GetWaiter();
+                _waiter = _mainForm.rateLimiter.GetWaiter(upload);
                 _waiter.WaitOne();
             }
         }
