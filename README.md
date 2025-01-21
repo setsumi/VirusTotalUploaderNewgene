@@ -12,4 +12,4 @@ https://github.com/setsumi/VirusTotalUploaderNewgene/releases
 
 ## Screenshot
 
-![image](https://github.com/user-attachments/assets/82b1a1ac-7048-4210-9296-140f6ac49a3d)
+![image](https://github.com/user-attachments/assets/31b2cdd7-98af-499e-847a-907a5f5b1275)
