@@ -12,7 +12,6 @@
         public string SettingsForm_Language = "Language";
         public string SettingsForm_Save = "Save";
         public string SettingsForm_Open = "Explore settings file";
-        public string SettingsForm_DirectUpload = "Upload files immediately";
 
         public string UploadForm_Check = "Check";
         public string UploadForm_Upload = "Upload";

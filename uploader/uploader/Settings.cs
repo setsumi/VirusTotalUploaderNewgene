@@ -12,6 +12,8 @@ namespace uploader
         public int CallsPerMinute = 4;
         public int MinimumFileSize = 5;
         public bool Sounds = true;
+        public bool UseNotification = true;
+        public int TimeToNotification = 120;
 
         public static string GetSettingsFilename()
         {

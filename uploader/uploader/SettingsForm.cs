@@ -22,6 +22,8 @@ namespace uploader
             callsPerMinuteUpDown.Value = settings.CallsPerMinute;
             minSizeUpDown.Value = settings.MinimumFileSize;
             soundCheckbox.Checked = settings.Sounds;
+            notifyCheckbox.Checked = settings.UseNotification;
+            notifyUpDown.Value = settings.TimeToNotification;
 
             var languages = LocalizationHelper.GetLanguages();
             languageCombo.Items.Clear();
@@ -48,7 +50,6 @@ namespace uploader
             saveButton.Text = LocalizationHelper.Base.SettingsForm_Save;
             openButton.Text = LocalizationHelper.Base.SettingsForm_Open;
             this.Text = LocalizationHelper.Base.SettingsForm_Title;
-            directCheckbox.Text = LocalizationHelper.Base.SettingsForm_DirectUpload;
             statusLabel.Text = "";
 
             //LocalizationHelper.Export();
@@ -80,7 +81,9 @@ namespace uploader
                 DirectUpload = directCheckbox.Checked,
                 CallsPerMinute = (int)callsPerMinuteUpDown.Value,
                 MinimumFileSize = (int)minSizeUpDown.Value,
-                Sounds = soundCheckbox.Checked
+                Sounds = soundCheckbox.Checked,
+                UseNotification = notifyCheckbox.Checked,
+                TimeToNotification = (int)notifyUpDown.Value
             };
 
             Settings.SaveSettings(settings);

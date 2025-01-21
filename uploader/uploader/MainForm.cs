@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using DarkUI.Controls;
 using DarkUI.Forms;
+using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace uploader
 {
@@ -28,6 +30,7 @@ namespace uploader
         private readonly DarkContextMenu _doAllMenu = new DarkContextMenu();
         private FormWindowState _previousWindowState;
         private bool _formInit = true;
+        private DateTime _beginTask = DateTime.MinValue;
 
         public MainForm()
         {
@@ -283,6 +286,24 @@ namespace uploader
             {
                 queueLabel.Text = text;
                 updated++;
+            }
+
+            if (_settings.UseNotification && updated == 1)
+            {
+                if (_beginTask == DateTime.MinValue && !string.IsNullOrEmpty(text))
+                {
+                    _beginTask = DateTime.Now;
+                }
+                else if (_beginTask != DateTime.MinValue && string.IsNullOrEmpty(text))
+                {
+                    if ((DateTime.Now - _beginTask).TotalSeconds >= _settings.TimeToNotification)
+                    {
+                        new ToastContentBuilder().AddText("Complete").AddText("All tasks have been finished.")
+                            .AddAppLogoOverride(new Uri(Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName),
+                            "virustotal-icon.png"))).Show();
+                    }
+                    _beginTask = DateTime.MinValue;
+                }
             }
 
             if (SelectorUpdateStats())
