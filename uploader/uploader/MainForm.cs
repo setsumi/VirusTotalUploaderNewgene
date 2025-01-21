@@ -4,7 +4,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Windows.Forms;
 using DarkUI.Controls;
 using DarkUI.Forms;
@@ -270,7 +269,9 @@ namespace uploader
         {
             tmrRateLimiter.Stop();
 
-            SaveScroll();
+            int sv = SaveScroll(false);
+            int updated = 0;
+
             _rateLimiter.TimeTick();
             _rateLimiter.GetQueueLength(out int active, out int activeTotal, out int pending);
             string text = "";
@@ -281,23 +282,31 @@ namespace uploader
             if (queueLabel.Text != text)
             {
                 queueLabel.Text = text;
-                RestoreScroll();
+                updated++;
             }
 
-            SelectorUpdateStats();
+            if (SelectorUpdateStats())
+                updated++;
+
+            if (updated > 0)
+                RestoreScroll(sv);
 
             tmrRateLimiter.Start();
         }
 
-        private void SaveScroll()
+        private int SaveScroll(bool saveToForm = true)
         {
-            _vertScroll = panelUploads.VerticalScroll.Value;
+            int sv = panelUploads.VerticalScroll.Value;
+            if (saveToForm)
+                _vertScroll = sv;
+            return sv;
         }
 
-        private void RestoreScroll()
+        private void RestoreScroll(int scrollValue = -1)
         {
-            panelUploads.VerticalScroll.Value = _vertScroll;
-            panelUploads.AutoScrollPosition = new Point(0, _vertScroll);
+            int sv = scrollValue == -1 ? _vertScroll : scrollValue;
+            panelUploads.VerticalScroll.Value = sv;
+            panelUploads.AutoScrollPosition = new Point(0, sv);
         }
 
         private void ResetScroll()
@@ -373,7 +382,7 @@ namespace uploader
             }
         }
 
-        private void SelectorUpdateStats()
+        private bool SelectorUpdateStats()
         {
             int All = 0, Idle = 0, Detected = 0, Undetected = 0, Checking = 0, Uploading = 0, Uploaded = 0, Error = 0, Aborted = 0;
             foreach (var upload in _uploadList)
@@ -442,6 +451,8 @@ namespace uploader
                 doAllLabel.Left = selAborted.Left + selAborted.Width + 10;
                 queueLabel.Left = doAllLabel.Left + doAllLabel.Width + 10;
             }
+
+            return updated;
         }
 
         private void clearToolStripMenuItem_Click(object sender, EventArgs e)
@@ -512,12 +523,12 @@ namespace uploader
         private void MainForm_ResizeEnd(object sender, EventArgs e)
         {
             ResizeUploads();
-            panelUploads.AutoScroll = true;
+            RestoreScroll();
         }
 
         private void MainForm_ResizeBegin(object sender, EventArgs e)
         {
-            panelUploads.AutoScroll = false;
+            SaveScroll();
         }
 
         private void MainForm_Resize(object sender, EventArgs e)

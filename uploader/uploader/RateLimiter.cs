@@ -42,7 +42,7 @@ namespace uploader
 
         private int ActiveUploads()
         {
-            return _active.Count(item => item.Upload);
+            return _active.Count(item => item.Upload && item.Waiter != null);
         }
 
         private int QueuedNonUploads()
@@ -131,7 +131,7 @@ namespace uploader
                     // activate uploads quickly if only uploads are queued
                     // otherwise will end up waiting a minute after each upload despite having free rate slots
                     if (_active.Count < _callsPerMinute && _queued.Count > 0 &&
-                         _active.Count(item => item.Upload && item.Waiter != null) == 0 && QueuedNonUploads() == 0)
+                         ActiveUploads() == 0 && QueuedNonUploads() == 0)
                     {
                         var wo = _queued[0];
                         _queued.RemoveAt(0);
