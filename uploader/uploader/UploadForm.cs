@@ -334,7 +334,7 @@ namespace uploader
             // Upload file
             if (Status == FormStatus.Upload)
             {
-                ChangeStatus(LocalizationHelper.Base.Message_Upload, StatusMessageStyle.Progress);
+                ChangeStatus("Upload wait...", StatusMessageStyle.Progress);
 
                 //string uploadUri = "https://www.virustotal.com/vtapi/v2/file/scan";
                 string uploadUri = "api/v3/files";
@@ -356,6 +356,8 @@ namespace uploader
                 }
 
                 ApiRateWait(true);
+                ChangeStatus($"Uploading {Utils.BytesToHumanReadable((ulong)_fileSize)}...", StatusMessageStyle.Progress);
+
                 var scanRequest = new RestRequest(uploadUri, Method.Post);
                 scanRequest.AddHeader("x-apikey", _settings.ApiKey);
                 scanRequest.AddFile("file", fullPath);

@@ -18,7 +18,6 @@ namespace uploader
         internal RateLimiter rateLimiter { get { lock (_lock) { return _rateLimiter; } } }
 
         private SettingsForm _settingsForm = new SettingsForm();
-        private const int _maxArgs = 20;
         private const int _maxFiles = 200;
         private int _uploaderCount = 0;
         private bool _addingFiles = false;
@@ -210,17 +209,10 @@ namespace uploader
             var args = Environment.GetCommandLineArgs();
             var numArgs = args.Length - 1; // don't count exe itself
 
-            if (numArgs >= 1 && numArgs <= _maxArgs)
+            if (numArgs >= 1)
             {
                 var files = args.ToList().GetRange(1, args.Length - 1).ToArray();
                 showMultipleUploadForms(files, _settings);
-            }
-            else if (numArgs > _maxArgs)
-            {
-                var messageBox = new DarkMessageBox($"Number of arguments {numArgs} exceeds maximum.\n" +
-                    $"The app can handle max {_maxArgs} arguments at once.", this.Text, DarkMessageBoxIcon.Error, DarkDialogButton.Ok);
-                messageBox.ShowDialog();
-                this.Close();
             }
 
             tmrRateLimiter.Start();

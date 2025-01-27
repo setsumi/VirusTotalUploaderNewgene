@@ -22,7 +22,6 @@
         public string Message_Idle = "Idle, click for details.";
         public string Message_Init = "Initializing...";
         public string Message_Check = "Checking...";
-        public string Message_Upload = "Uploading...";
         public string Message_Uploaded = "Uploaded, click for details.";
         public string Message_NoSettings = "No settings file exists.";
     }
