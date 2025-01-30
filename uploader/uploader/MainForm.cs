@@ -23,7 +23,6 @@ namespace uploader
         private bool _addingFiles = false;
         private readonly RateLimiter _rateLimiter;
         private Settings _settings;
-        private int _vertScroll = 0;
         private readonly List<UploadForm> _uploadList = new List<UploadForm>();
         private readonly List<Label> _selectorList = new List<Label>();
         private readonly DarkContextMenu _doAllMenu = new DarkContextMenu();
@@ -264,7 +263,6 @@ namespace uploader
         {
             tmrRateLimiter.Stop();
 
-            int sv = SaveScroll(false);
             int updated = 0;
 
             _rateLimiter.TimeTick();
@@ -280,7 +278,7 @@ namespace uploader
                 updated++;
             }
 
-            if (_settings.UseNotification && updated == 1)
+            if (_settings.UseNotification && updated > 0)
             {
                 if (_beginTask == DateTime.MinValue && !string.IsNullOrEmpty(text))
                 {
@@ -298,28 +296,9 @@ namespace uploader
                 }
             }
 
-            if (SelectorUpdateStats())
-                updated++;
-
-            if (updated > 0)
-                RestoreScroll(sv);
+            SelectorUpdateStats();
 
             tmrRateLimiter.Start();
-        }
-
-        private int SaveScroll(bool saveToForm = true)
-        {
-            int sv = panelUploads.VerticalScroll.Value;
-            if (saveToForm)
-                _vertScroll = sv;
-            return sv;
-        }
-
-        private void RestoreScroll(int scrollValue = -1)
-        {
-            int sv = scrollValue == -1 ? _vertScroll : scrollValue;
-            panelUploads.VerticalScroll.Value = sv;
-            panelUploads.AutoScrollPosition = new Point(0, sv);
         }
 
         private void ResetScroll()
@@ -327,16 +306,6 @@ namespace uploader
             panelUploads.VerticalScroll.Value = 0;
             panelUploads.AutoScrollPosition = new Point(0, 0);
             Application.DoEvents();
-        }
-
-        private void MainForm_Deactivate(object sender, EventArgs e)
-        {
-            SaveScroll();
-        }
-
-        private void MainForm_Activated(object sender, EventArgs e)
-        {
-            RestoreScroll();
         }
 
         private void selAll_Click(object sender, EventArgs e)
@@ -536,12 +505,6 @@ namespace uploader
         private void MainForm_ResizeEnd(object sender, EventArgs e)
         {
             ResizeUploads();
-            RestoreScroll();
-        }
-
-        private void MainForm_ResizeBegin(object sender, EventArgs e)
-        {
-            SaveScroll();
         }
 
         private void MainForm_Resize(object sender, EventArgs e)
@@ -591,6 +554,16 @@ namespace uploader
         private void UpdateSounds()
         {
             labelSounds.Font = new Font(labelSounds.Font, _settings.Sounds ? FontStyle.Regular : FontStyle.Strikeout);
+        }
+    }
+
+    public class CustomPanel : System.Windows.Forms.Panel
+    {
+        protected override System.Drawing.Point ScrollToControl(System.Windows.Forms.Control activeControl)
+        {
+            Point retPt = DisplayRectangle.Location;
+            retPt.Offset(new Point(-1 * Padding.Left, -1 * Padding.Bottom));
+            return retPt;
         }
     }
 }

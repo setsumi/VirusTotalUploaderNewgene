@@ -31,7 +31,7 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.moreLabel = new DarkUI.Controls.DarkLabel();
-            this.panelUploads = new System.Windows.Forms.Panel();
+            this.panelUploads = new uploader.CustomPanel();
             this.labelMessage = new DarkUI.Controls.DarkLabel();
             this.tmrRateLimiter = new System.Windows.Forms.Timer(this.components);
             this.queueLabel = new DarkUI.Controls.DarkLabel();
@@ -309,12 +309,9 @@
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "VirusTotal Uploader Newgene";
-            this.Activated += new System.EventHandler(this.MainForm_Activated);
-            this.Deactivate += new System.EventHandler(this.MainForm_Deactivate);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.Shown += new System.EventHandler(this.MainForm_Shown);
-            this.ResizeBegin += new System.EventHandler(this.MainForm_ResizeBegin);
             this.ResizeEnd += new System.EventHandler(this.MainForm_ResizeEnd);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.MainForm_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.MainForm_DragEnter);
@@ -331,7 +328,7 @@
         private DarkUI.Controls.DarkLabel labelMessage;
         private System.Windows.Forms.Timer tmrRateLimiter;
         private DarkUI.Controls.DarkLabel queueLabel;
-        public System.Windows.Forms.Panel panelUploads;
+        public uploader.CustomPanel panelUploads;
         private DarkUI.Controls.DarkLabel selAll;
         private DarkUI.Controls.DarkLabel selDetected;
         private DarkUI.Controls.DarkLabel selUndetected;
