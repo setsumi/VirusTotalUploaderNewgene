@@ -150,6 +150,7 @@ namespace uploader
             {
                 _addingFiles = false;
                 var messageBox = new DarkMessageBox($"Reached upper limit of {_maxFiles} files.\nOperation aborted.", this.Text, DarkMessageBoxIcon.Warning, DarkDialogButton.Ok);
+                System.Media.SystemSounds.Beep.Play();
                 messageBox.ShowDialog();
                 return;
             }
