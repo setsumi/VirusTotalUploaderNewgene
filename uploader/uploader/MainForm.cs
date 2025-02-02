@@ -16,12 +16,14 @@ namespace uploader
     {
         private readonly object _lock = new object();
         internal RateLimiter rateLimiter { get { lock (_lock) { return _rateLimiter; } } }
+        internal QuickRateLimiter quickRateLimiter { get { lock (_lock) { return _quickRateLimiter; } } }
 
         private SettingsForm _settingsForm = new SettingsForm();
         private const int _maxFiles = 200;
         private int _uploaderCount = 0;
         private bool _addingFiles = false;
         private readonly RateLimiter _rateLimiter;
+        private readonly QuickRateLimiter _quickRateLimiter;
         private Settings _settings;
         private readonly List<UploadForm> _uploadList = new List<UploadForm>();
         private readonly List<Label> _selectorList = new List<Label>();
@@ -36,6 +38,7 @@ namespace uploader
 
             _settings = Settings.LoadSettings();
             _rateLimiter = new RateLimiter(_settings.CallsPerMinute);
+            _quickRateLimiter = new QuickRateLimiter(_settings.QuickCheckRate);
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -230,6 +233,7 @@ namespace uploader
                 upload.FormAbort();
             }
             _rateLimiter.Clear();
+            _quickRateLimiter.Clear();
             panelUploads.Controls.Clear();
 
             foreach (var form in _uploadList)
@@ -268,6 +272,11 @@ namespace uploader
 
             _rateLimiter.TimeTick();
             _rateLimiter.GetQueueLength(out int active, out int activeTotal, out int pending);
+            _quickRateLimiter.TimeTick();
+            _quickRateLimiter.GetQueueLength(out int quickActive, out int quickActiveTotal, out int quickPending);
+            active += quickActive;
+            activeTotal += quickActiveTotal;
+            pending += quickPending;
             string text = "";
             if (active != 0 || pending != 0)
             {

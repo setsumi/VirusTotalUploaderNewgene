@@ -14,6 +14,8 @@ namespace uploader
         public bool Sounds = true;
         public bool UseNotification = true;
         public int TimeToNotification = 120;
+        public bool QuickCheck = true;
+        public int QuickCheckRate = 3; // one call per (seconds)
 
         public static string GetSettingsFilename()
         {

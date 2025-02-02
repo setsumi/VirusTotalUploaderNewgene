@@ -24,6 +24,8 @@ namespace uploader
             soundCheckbox.Checked = settings.Sounds;
             notifyCheckbox.Checked = settings.UseNotification;
             notifyUpDown.Value = settings.TimeToNotification;
+            quickCheckBox.Checked = settings.QuickCheck;
+            quickCheckUpDown.Value = settings.QuickCheckRate;
 
             var languages = LocalizationHelper.GetLanguages();
             languageCombo.Items.Clear();
@@ -83,7 +85,9 @@ namespace uploader
                 MinimumFileSize = (int)minSizeUpDown.Value,
                 Sounds = soundCheckbox.Checked,
                 UseNotification = notifyCheckbox.Checked,
-                TimeToNotification = (int)notifyUpDown.Value
+                TimeToNotification = (int)notifyUpDown.Value,
+                QuickCheck = quickCheckBox.Checked,
+                QuickCheckRate = (int)quickCheckUpDown.Value
             };
 
             Settings.SaveSettings(settings);

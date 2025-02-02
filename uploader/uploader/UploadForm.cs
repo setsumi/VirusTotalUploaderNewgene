@@ -33,7 +33,7 @@ namespace uploader
         private bool _fileExists = false;
         private bool _fileTooLarge = false;
         private bool _fileTooSmall = false;
-        private Semaphore _waiter = null;
+        private Semaphore _waiter = null, _quickWaiter = null;
 
         private StatusMessageStyle _state = StatusMessageStyle.Normal;
         public StatusMessageStyle State { get { return _state; } }
@@ -216,7 +216,7 @@ namespace uploader
                     else
                     {
                         type = ex.GetType() + ": ";
-                        msg = ex.Message.Replace("\r", "").Replace("\n", " ");
+                        msg = ex.Message.OneLine();
                     }
                     DisplayError(type + msg, mode);
                     Finish(Status);
@@ -241,10 +241,30 @@ namespace uploader
             // Check file
             if (Status == FormStatus.Check)
             {
+                ChangeStatus(LocalizationHelper.Base.Message_Check, StatusMessageStyle.ShortWait);
+
+                if (!_settings.QuickCheck)
+                {
+                    goto labelCheck;
+                }
+                (bool found, bool error) = QuickCheck();
+                if (error)
+                {
+                    goto labelCheck;
+                }
+                else if (found)
+                {
+                    return true;
+                }
+                else
+                {
+                    Status = FormStatus.Upload;
+                    goto labelUpload;
+                }
+
+            labelCheck:
                 try
                 {
-                    ChangeStatus(LocalizationHelper.Base.Message_Check, StatusMessageStyle.ShortWait);
-
                     ApiRateWait();
                     var reportRequest = new RestRequest($"api/v3/files/{SHA256}", Method.Get);
                     reportRequest.AddHeader("x-apikey", _settings.ApiKey);
@@ -323,14 +343,15 @@ namespace uploader
                     catch (Exception ex)
                     {
                         if (ex is MyException)
-                            DisplayError(ex.Message);
+                            DisplayError(ex.Message.OneLine());
                         else
-                            DisplayError($"Unrecognized responce: {ex.GetType()}: {ex.Message}");
+                            DisplayError($"Unrecognized responce: {ex.GetType()}: {ex.Message.OneLine()}");
                         return false;
                     }
                 }
             }
 
+        labelUpload:
             // Upload file
             if (Status == FormStatus.Upload)
             {
@@ -387,6 +408,59 @@ namespace uploader
             return true;
         }
 
+        private (bool Found, bool Error) QuickCheck()
+        {
+            bool found = false;
+            bool error = false;
+
+            RestClientOptions opt = new RestClientOptions
+            {
+                BaseUrl = new Uri("https://www.virustotal.com"),
+                UserAgent = "VirusTotal"
+            };
+            using (var client = new RestClient(opt))
+            {
+                try
+                {
+                    QuickApiRateWait();
+                    var url = "4h0w8MnA2hHsFQ15A2uH+KkCLy2rEy0c5BOS1t0KCzJKgHQQ/ZZr28gaLiWSLu4S5tcOqz8ZpONqlAELRrit394MbXf13qcI+qY3p17gd6fATRhCNJeVMAZdXnrZcbdsx4NSY4/mmHH+OpL+Rwc/bOR5QMSri5tysWiSiIqKhPfD7a4ATuSs211W+IFfS60GK6kiqLeKpxWIyU/j10RmfNBTI1yL0bex8SgUoFwJV65ErB2dESZEs1opcQ34TKsKK0GoK0kMbPGLJD7XCwsaDUPaNxxXG3ss".Decode();
+                    var reportRequest = new RestRequest(url, Method.Post);
+                    reportRequest.Timeout = TimeSpan.FromMinutes(1); // normal timeout
+                    var jsonBody = $"[{{\"hash\": \"{SHA256}\", \"image_path\": \"{Path.GetFileName(_path)}\"}}]";
+                    reportRequest.AddJsonBody(jsonBody, false, ContentType.Json);
+
+                    var reportResponse = client.Execute(reportRequest);
+                    var reportContent = reportResponse.Content;
+                    QuickApiRateRelease();
+
+                    dynamic json = JsonConvert.DeserializeObject(reportContent);
+                    found = json.data[0].found;
+                    int positives = 0;
+                    string permalink = "";
+                    string ratio = "";
+                    if (found)
+                    {
+                        positives = json.data[0].positives;
+                        permalink = json.data[0].permalink;
+                        ratio = json.data[0].detection_ratio;
+                    }
+                    var stat = positives > 0 ? StatusMessageStyle.Red : StatusMessageStyle.Green;
+                    if (found)
+                    {
+                        SetLink(permalink);
+                        ChangeStatus($"{ratio} detected, click for details.", stat);
+                    }
+                }
+                catch //(Exception ex)
+                {
+                    error = true;
+                    //debug
+                    //DisplayError(ex.Message.OneLine());
+                }
+            }
+            return (Found: found, Error: error);
+        }
+
         private void ApiRateWait(bool upload = false)
         {
             lock (_threadLock)
@@ -400,7 +474,30 @@ namespace uploader
         {
             lock (_threadLock)
             {
-                _mainForm.rateLimiter.ReleaseWaiter(_waiter);
+                if (_waiter != null)
+                {
+                    _mainForm.rateLimiter.ReleaseWaiter(_waiter);
+                }
+            }
+        }
+
+        private void QuickApiRateWait()
+        {
+            lock (_threadLock)
+            {
+                _quickWaiter = _mainForm.quickRateLimiter.GetWaiter();
+                _quickWaiter.WaitOne();
+            }
+        }
+
+        private void QuickApiRateRelease()
+        {
+            lock (_threadLock)
+            {
+                if (_quickWaiter != null)
+                {
+                    _mainForm.quickRateLimiter.ReleaseWaiter(_quickWaiter);
+                }
             }
         }
 
