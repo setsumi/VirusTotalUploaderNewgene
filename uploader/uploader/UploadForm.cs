@@ -435,20 +435,22 @@ namespace uploader
 
                     dynamic json = JsonConvert.DeserializeObject(reportContent);
                     found = json.data[0].found;
+                    int total = 0;
                     int positives = 0;
                     string permalink = "";
-                    string ratio = "";
                     if (found)
                     {
+                        total = json.data[0].total;
                         positives = json.data[0].positives;
                         permalink = json.data[0].permalink;
-                        ratio = json.data[0].detection_ratio;
-                    }
-                    var stat = positives > 0 ? StatusMessageStyle.Red : StatusMessageStyle.Green;
-                    if (found)
-                    {
+
+                        var stat = StatusMessageStyle.Normal;
+                        if (total > 0)
+                            stat = positives > 0 ? StatusMessageStyle.Red : StatusMessageStyle.Green;
+                        else
+                            stat = StatusMessageStyle.Error;
                         SetLink(permalink);
-                        ChangeStatus($"{ratio} detected, click for details.", stat);
+                        ChangeStatus($"{positives}/{total} detected, click for details.", stat);
                     }
                 }
                 catch //(Exception ex)
