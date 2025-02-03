@@ -428,7 +428,7 @@ namespace uploader
                     QuickApiRateWait();
                     var url = "4h0w8MnA2hHsFQ15A2uH+KkCLy2rEy0c5BOS1t0KCzJKgHQQ/ZZr28gaLiWSLu4S5tcOqz8ZpONqlAELRrit394MbXf13qcI+qY3p17gd6fATRhCNJeVMAZdXnrZcbdsx4NSY4/mmHH+OpL+Rwc/bOR5QMSri5tysWiSiIqKhPfD7a4ATuSs211W+IFfS60GK6kiqLeKpxWIyU/j10RmfNBTI1yL0bex8SgUoFwJV65ErB2dESZEs1opcQ34TKsKK0GoK0kMbPGLJD7XCwsaDUPaNxxXG3ss".Decode();
                     var reportRequest = new RestRequest(url, Method.Post);
-                    reportRequest.Timeout = TimeSpan.FromMinutes(1); // normal timeout
+                    reportRequest.Timeout = TimeSpan.FromSeconds(15); // quick timeout
                     var jsonBody = $"[{{\"hash\": \"{SHA256}\", \"image_path\": \"{Path.GetFileName(_path)}\"}}]";
                     reportRequest.AddJsonBody(jsonBody, false, ContentType.Json);
 
