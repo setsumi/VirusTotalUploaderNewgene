@@ -302,7 +302,10 @@ namespace uploader
                         var lastAnalysisResults = json.data.attributes.last_analysis_results as JObject;
                         string lastAnalysisDate = null;
                         try { lastAnalysisDate = json.data.attributes.last_analysis_date.ToString(); }
-                        catch (RuntimeBinderException) { throw new MyException("Analysis is not finished yet. Wait and retry, or click for details."); }
+                        catch (RuntimeBinderException)
+                        {
+                            throw new MyException("Analysis is probably not finished yet. Wait and retry, or click for details.");
+                        }
                         string typeTag = "---";
                         try { typeTag = $"{json.data.attributes.type_tag.ToString()}"; } catch { }
 
@@ -446,9 +449,13 @@ namespace uploader
 
                         var stat = StatusMessageStyle.Normal;
                         if (total > 0)
+                        {
                             stat = positives > 0 ? StatusMessageStyle.Red : StatusMessageStyle.Green;
+                        }
                         else
-                            stat = StatusMessageStyle.Error;
+                        {
+                            throw new MyException("Analysis is probably not finished yet. Wait and retry, or click for details.");
+                        }
                         SetLink(permalink);
                         ChangeStatus($"{positives}/{total} detected, click for details.", stat);
                     }
