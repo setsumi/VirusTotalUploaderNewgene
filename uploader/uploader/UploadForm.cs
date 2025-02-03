@@ -225,6 +225,7 @@ namespace uploader
             finally
             {
                 ApiRateRelease();
+                QuickApiRateRelease();
             }
         }
 
