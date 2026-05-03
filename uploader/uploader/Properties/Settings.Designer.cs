@@ -70,5 +70,17 @@ namespace uploader.Properties {
                 this["winTop"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int selectedFileFilter {
+            get {
+                return ((int)(this["selectedFileFilter"]));
+            }
+            set {
+                this["selectedFileFilter"] = value;
+            }
+        }
     }
 }

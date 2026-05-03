@@ -1,0 +1,2 @@
+﻿All Files|*.*
+Executables|*.exe|*.dll|*.bat|*.cmd|*.vbs|*.vbe|*.js|*.jse|*.wsf|*.wsh|*.psc1|*.msc|*.pif|*.lnk|*.com|*.scr|*.sys|*.ocx|*.cpl|*.bpl|*.ax|*.drv|*.vxd|*.mui|*.mun|*.tlb|*.efi|*.mz|*.msi|*.apk|*.aab|*.appx|*.appxbundle|*.msp|*.msix|*.msixbundle|*.dmg|*.ipa|*.hap|*.ddeb|*.deb|*.appimage|*.rpm|*.wgt|*.wgtu|*.axf|*.elf|*.prx

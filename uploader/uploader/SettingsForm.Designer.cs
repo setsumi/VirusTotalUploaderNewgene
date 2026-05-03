@@ -31,6 +31,10 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
             this.generalGroupBox = new DarkUI.Controls.DarkGroupBox();
+            this.darkLabel7 = new DarkUI.Controls.DarkLabel();
+            this.darkLabel6 = new DarkUI.Controls.DarkLabel();
+            this.quickCheckUpDown = new DarkUI.Controls.DarkNumericUpDown();
+            this.quickCheckBox = new DarkUI.Controls.DarkCheckBox();
             this.darkLabel5 = new DarkUI.Controls.DarkLabel();
             this.notifyUpDown = new DarkUI.Controls.DarkNumericUpDown();
             this.notifyCheckbox = new DarkUI.Controls.DarkCheckBox();
@@ -51,21 +55,19 @@
             this.saveButton = new DarkUI.Controls.DarkButton();
             this.openButton = new DarkUI.Controls.DarkButton();
             this.statusLabel = new DarkUI.Controls.DarkLabel();
-            this.quickCheckBox = new DarkUI.Controls.DarkCheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.darkLabel6 = new DarkUI.Controls.DarkLabel();
-            this.quickCheckUpDown = new DarkUI.Controls.DarkNumericUpDown();
-            this.darkLabel7 = new DarkUI.Controls.DarkLabel();
+            this.shellButton = new System.Windows.Forms.Button();
             this.generalGroupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.quickCheckUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.notifyUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.minSizeUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.callsPerMinuteUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.quickCheckUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // generalGroupBox
             // 
             this.generalGroupBox.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
+            this.generalGroupBox.Controls.Add(this.shellButton);
             this.generalGroupBox.Controls.Add(this.darkLabel7);
             this.generalGroupBox.Controls.Add(this.darkLabel6);
             this.generalGroupBox.Controls.Add(this.quickCheckUpDown);
@@ -93,6 +95,58 @@
             this.generalGroupBox.TabIndex = 0;
             this.generalGroupBox.TabStop = false;
             this.generalGroupBox.Text = "settings";
+            // 
+            // darkLabel7
+            // 
+            this.darkLabel7.AutoSize = true;
+            this.darkLabel7.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.darkLabel7.Location = new System.Drawing.Point(130, 155);
+            this.darkLabel7.Name = "darkLabel7";
+            this.darkLabel7.Size = new System.Drawing.Size(83, 13);
+            this.darkLabel7.TabIndex = 20;
+            this.darkLabel7.Text = "One request per";
+            // 
+            // darkLabel6
+            // 
+            this.darkLabel6.AutoSize = true;
+            this.darkLabel6.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.darkLabel6.Location = new System.Drawing.Point(285, 155);
+            this.darkLabel6.Name = "darkLabel6";
+            this.darkLabel6.Size = new System.Drawing.Size(49, 13);
+            this.darkLabel6.TabIndex = 19;
+            this.darkLabel6.Text = "Seconds";
+            // 
+            // quickCheckUpDown
+            // 
+            this.quickCheckUpDown.Location = new System.Drawing.Point(219, 153);
+            this.quickCheckUpDown.Maximum = new decimal(new int[] {
+            60,
+            0,
+            0,
+            0});
+            this.quickCheckUpDown.Minimum = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            this.quickCheckUpDown.Name = "quickCheckUpDown";
+            this.quickCheckUpDown.Size = new System.Drawing.Size(60, 20);
+            this.quickCheckUpDown.TabIndex = 18;
+            this.quickCheckUpDown.Value = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            // 
+            // quickCheckBox
+            // 
+            this.quickCheckBox.AutoSize = true;
+            this.quickCheckBox.Location = new System.Drawing.Point(10, 154);
+            this.quickCheckBox.Name = "quickCheckBox";
+            this.quickCheckBox.Size = new System.Drawing.Size(103, 17);
+            this.quickCheckBox.TabIndex = 17;
+            this.quickCheckBox.Text = "Quick file check";
+            this.toolTip1.SetToolTip(this.quickCheckBox, "Less details but much faster.\r\nIn case of error falls back to regular API check.");
             // 
             // darkLabel5
             // 
@@ -326,57 +380,15 @@
             this.statusLabel.Text = "no settings file";
             this.statusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // quickCheckBox
+            // shellButton
             // 
-            this.quickCheckBox.AutoSize = true;
-            this.quickCheckBox.Location = new System.Drawing.Point(10, 154);
-            this.quickCheckBox.Name = "quickCheckBox";
-            this.quickCheckBox.Size = new System.Drawing.Size(103, 17);
-            this.quickCheckBox.TabIndex = 17;
-            this.quickCheckBox.Text = "Quick file check";
-            this.toolTip1.SetToolTip(this.quickCheckBox, "Less details but much faster.\r\nIn case of error falls back to regular API check.");
-            // 
-            // darkLabel6
-            // 
-            this.darkLabel6.AutoSize = true;
-            this.darkLabel6.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.darkLabel6.Location = new System.Drawing.Point(285, 155);
-            this.darkLabel6.Name = "darkLabel6";
-            this.darkLabel6.Size = new System.Drawing.Size(49, 13);
-            this.darkLabel6.TabIndex = 19;
-            this.darkLabel6.Text = "Seconds";
-            // 
-            // quickCheckUpDown
-            // 
-            this.quickCheckUpDown.Location = new System.Drawing.Point(219, 153);
-            this.quickCheckUpDown.Maximum = new decimal(new int[] {
-            60,
-            0,
-            0,
-            0});
-            this.quickCheckUpDown.Minimum = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
-            this.quickCheckUpDown.Name = "quickCheckUpDown";
-            this.quickCheckUpDown.Size = new System.Drawing.Size(60, 20);
-            this.quickCheckUpDown.TabIndex = 18;
-            this.quickCheckUpDown.Value = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
-            // 
-            // darkLabel7
-            // 
-            this.darkLabel7.AutoSize = true;
-            this.darkLabel7.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.darkLabel7.Location = new System.Drawing.Point(130, 155);
-            this.darkLabel7.Name = "darkLabel7";
-            this.darkLabel7.Size = new System.Drawing.Size(83, 13);
-            this.darkLabel7.TabIndex = 20;
-            this.darkLabel7.Text = "One request per";
+            this.shellButton.Location = new System.Drawing.Point(365, 115);
+            this.shellButton.Name = "shellButton";
+            this.shellButton.Size = new System.Drawing.Size(145, 23);
+            this.shellButton.TabIndex = 21;
+            this.shellButton.Text = "Shell Context Menu...";
+            this.shellButton.UseVisualStyleBackColor = true;
+            this.shellButton.Click += new System.EventHandler(this.shellButton_Click);
             // 
             // SettingsForm
             // 
@@ -399,10 +411,10 @@
             this.Load += new System.EventHandler(this.SettingsForm_Load);
             this.generalGroupBox.ResumeLayout(false);
             this.generalGroupBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.quickCheckUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.notifyUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.minSizeUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.callsPerMinuteUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.quickCheckUpDown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -436,5 +448,6 @@
         private DarkUI.Controls.DarkLabel darkLabel7;
         private DarkUI.Controls.DarkLabel darkLabel6;
         private DarkUI.Controls.DarkNumericUpDown quickCheckUpDown;
+        private System.Windows.Forms.Button shellButton;
     }
 }

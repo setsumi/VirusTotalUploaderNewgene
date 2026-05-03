@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Media;
 using System.Windows.Forms;
 using DarkUI.Forms;
 
@@ -53,6 +54,7 @@ namespace uploader
             openButton.Text = LocalizationHelper.Base.SettingsForm_Open;
             this.Text = LocalizationHelper.Base.SettingsForm_Title;
             statusLabel.Text = "";
+            Win32.AddShieldToButton(shellButton);
 
             //LocalizationHelper.Export();
         }
@@ -68,7 +70,7 @@ namespace uploader
 
             var args = $"/e, /select, \"{Settings.GetSettingsFilename()}\"";
 
-            var info = new ProcessStartInfo { FileName = "explorer", Arguments = args };
+            var info = new ProcessStartInfo { FileName = "explorer.exe", Arguments = args };
             Process.Start(info);
         }
 
@@ -100,12 +102,30 @@ namespace uploader
 
         private void getApiButton_Click(object sender, EventArgs e)
         {
-            Process.Start("https://docs.virustotal.com/reference/getting-started");
+            Process.Start("https://docs.virustotal.com/reference/getting-started")?.Dispose();
         }
 
         private void apiLimitsLabel_Click(object sender, EventArgs e)
         {
-            Process.Start("https://docs.virustotal.com/reference/public-vs-premium-api");
+            Process.Start("https://docs.virustotal.com/reference/public-vs-premium-api")?.Dispose();
+        }
+
+        private void shellButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var psi = new ProcessStartInfo()
+                {
+                    UseShellExecute = true,
+                    FileName = Path.Combine((Owner as MainForm)._exeFolder, "manager.exe")
+                };
+                Process.Start(psi)?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                SystemSounds.Hand.Play();
+                DarkMessageBox.ShowError($"{ex.Source}\n{ex.Message}", this.Text);
+            }
         }
     }
 }

@@ -1,10 +1,27 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace uploader
 {
+    internal static class Win32
+    {
+        [DllImport("shlwapi.dll", CharSet = CharSet.Unicode)]
+        public static extern bool PathMatchSpecW(string pszFile, string pszSpec);
+
+        [DllImport("user32.dll")]
+        public static extern int SendMessage(IntPtr hWnd, uint Msg, int wParam, int lParam);
+
+        public static void AddShieldToButton(System.Windows.Forms.Button btn)
+        {
+            const Int32 BCM_SETSHIELD = 0x160C;
+            btn.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            SendMessage(btn.Handle, BCM_SETSHIELD, 0, 1);
+        }
+    }
+
     internal static class Utils
     {
         public static string GetMD5(string file)

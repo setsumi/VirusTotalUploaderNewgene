@@ -31,7 +31,6 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.moreLabel = new DarkUI.Controls.DarkLabel();
-            this.panelUploads = new uploader.CustomPanel();
             this.labelMessage = new DarkUI.Controls.DarkLabel();
             this.tmrRateLimiter = new System.Windows.Forms.Timer(this.components);
             this.queueLabel = new DarkUI.Controls.DarkLabel();
@@ -45,12 +44,16 @@
             this.selUploading = new DarkUI.Controls.DarkLabel();
             this.contextMenu1 = new DarkUI.Controls.DarkContextMenu();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editFileFiltersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.dLLSideloadScannerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.doAllLabel = new DarkUI.Controls.DarkLabel();
             this.selChecking = new DarkUI.Controls.DarkLabel();
             this.labelSounds = new DarkUI.Controls.DarkLabel();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.comboFileFilter = new System.Windows.Forms.ComboBox();
+            this.panelUploads = new uploader.CustomPanel();
             this.contextMenu1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -68,32 +71,19 @@
             this.moreLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.moreLabel.Click += new System.EventHandler(this.moreLabel_Click);
             // 
-            // panelUploads
-            // 
-            this.panelUploads.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.panelUploads.AutoScroll = true;
-            this.panelUploads.AutoScrollMargin = new System.Drawing.Size(5, 5);
-            this.panelUploads.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
-            this.panelUploads.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelUploads.Location = new System.Drawing.Point(12, 38);
-            this.panelUploads.Name = "panelUploads";
-            this.panelUploads.Size = new System.Drawing.Size(748, 325);
-            this.panelUploads.TabIndex = 2;
-            // 
             // labelMessage
             // 
             this.labelMessage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.labelMessage.AutoSize = true;
             this.labelMessage.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.labelMessage.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.labelMessage.Location = new System.Drawing.Point(12, 366);
+            this.labelMessage.Location = new System.Drawing.Point(12, 382);
             this.labelMessage.Name = "labelMessage";
             this.labelMessage.Size = new System.Drawing.Size(82, 13);
             this.labelMessage.TabIndex = 6;
             this.labelMessage.Text = "drag file here";
             this.labelMessage.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.labelMessage.TextChanged += new System.EventHandler(this.labelMessage_TextChanged);
             this.labelMessage.Click += new System.EventHandler(this.labelMessage_Click);
             // 
             // tmrRateLimiter
@@ -214,36 +204,58 @@
             this.contextMenu1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
             this.contextMenu1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.settingsToolStripMenuItem,
-            this.toolStripMenuItem1,
-            this.clearToolStripMenuItem});
+            this.clearToolStripMenuItem,
+            this.editFileFiltersToolStripMenuItem,
+            this.toolStripSeparator1,
+            this.dLLSideloadScannerToolStripMenuItem});
             this.contextMenu1.Name = "contextMenu1";
-            this.contextMenu1.Size = new System.Drawing.Size(117, 55);
+            this.contextMenu1.Size = new System.Drawing.Size(188, 99);
             // 
             // settingsToolStripMenuItem
             // 
             this.settingsToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
             this.settingsToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
             this.settingsToolStripMenuItem.Text = "Settings";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
-            // 
-            // toolStripMenuItem1
-            // 
-            this.toolStripMenuItem1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
-            this.toolStripMenuItem1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.toolStripMenuItem1.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(113, 6);
             // 
             // clearToolStripMenuItem
             // 
             this.clearToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
             this.clearToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
             this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
-            this.clearToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.clearToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
             this.clearToolStripMenuItem.Text = "Clear";
             this.clearToolStripMenuItem.Click += new System.EventHandler(this.clearToolStripMenuItem_Click);
+            // 
+            // editFileFiltersToolStripMenuItem
+            // 
+            this.editFileFiltersToolStripMenuItem.AutoToolTip = true;
+            this.editFileFiltersToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
+            this.editFileFiltersToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.editFileFiltersToolStripMenuItem.Name = "editFileFiltersToolStripMenuItem";
+            this.editFileFiltersToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+            this.editFileFiltersToolStripMenuItem.Text = "Edit File Filters";
+            this.editFileFiltersToolStripMenuItem.ToolTipText = "Requires restart";
+            this.editFileFiltersToolStripMenuItem.Click += new System.EventHandler(this.editFileFiltersToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
+            this.toolStripSeparator1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.toolStripSeparator1.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(184, 6);
+            // 
+            // dLLSideloadScannerToolStripMenuItem
+            // 
+            this.dLLSideloadScannerToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
+            this.dLLSideloadScannerToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.dLLSideloadScannerToolStripMenuItem.Name = "dLLSideloadScannerToolStripMenuItem";
+            this.dLLSideloadScannerToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+            this.dLLSideloadScannerToolStripMenuItem.Text = "DLL Sideload Scanner";
+            this.dLLSideloadScannerToolStripMenuItem.Click += new System.EventHandler(this.dLLSideloadScannerToolStripMenuItem_Click);
             // 
             // doAllLabel
             // 
@@ -276,19 +288,45 @@
             this.labelSounds.AutoSize = true;
             this.labelSounds.Cursor = System.Windows.Forms.Cursors.Hand;
             this.labelSounds.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.labelSounds.Location = new System.Drawing.Point(698, 366);
+            this.labelSounds.Location = new System.Drawing.Point(698, 382);
             this.labelSounds.Name = "labelSounds";
             this.labelSounds.Size = new System.Drawing.Size(49, 13);
             this.labelSounds.TabIndex = 19;
             this.labelSounds.Text = " Sounds ";
             this.labelSounds.Click += new System.EventHandler(this.labelSounds_Click);
             // 
+            // comboFileFilter
+            // 
+            this.comboFileFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboFileFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboFileFilter.FormattingEnabled = true;
+            this.comboFileFilter.Location = new System.Drawing.Point(334, 379);
+            this.comboFileFilter.Name = "comboFileFilter";
+            this.comboFileFilter.Size = new System.Drawing.Size(342, 21);
+            this.comboFileFilter.TabIndex = 21;
+            this.comboFileFilter.SelectedIndexChanged += new System.EventHandler(this.comboFileFilter_SelectedIndexChanged);
+            // 
+            // panelUploads
+            // 
+            this.panelUploads.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panelUploads.AutoScroll = true;
+            this.panelUploads.AutoScrollMargin = new System.Drawing.Size(5, 5);
+            this.panelUploads.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
+            this.panelUploads.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelUploads.Location = new System.Drawing.Point(12, 38);
+            this.panelUploads.Name = "panelUploads";
+            this.panelUploads.Size = new System.Drawing.Size(748, 335);
+            this.panelUploads.TabIndex = 2;
+            // 
             // MainForm
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(772, 383);
+            this.ClientSize = new System.Drawing.Size(772, 404);
+            this.Controls.Add(this.comboFileFilter);
             this.Controls.Add(this.labelSounds);
             this.Controls.Add(this.selChecking);
             this.Controls.Add(this.doAllLabel);
@@ -339,12 +377,15 @@
         private DarkUI.Controls.DarkLabel selUploading;
         private DarkUI.Controls.DarkContextMenu contextMenu1;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem clearToolStripMenuItem;
         private DarkUI.Controls.DarkLabel doAllLabel;
         private DarkUI.Controls.DarkLabel selChecking;
         private DarkUI.Controls.DarkLabel labelSounds;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.ComboBox comboFileFilter;
+        private System.Windows.Forms.ToolStripMenuItem editFileFiltersToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem dLLSideloadScannerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
     }
 }
 

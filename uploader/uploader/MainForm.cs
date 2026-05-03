@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.IO.Pipes;
 using System.Linq;
+using System.Media;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using DarkUI.Controls;
 using DarkUI.Forms;
@@ -31,6 +34,9 @@ namespace uploader
         private FormWindowState _previousWindowState;
         private bool _formInit = true;
         private DateTime _beginTask = DateTime.MinValue;
+        public readonly string _exeFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        private readonly string _fileFiltersFileName = "FileFilters.txt";
+        private readonly FileFilter _fileFilter = new FileFilter();
 
         public MainForm()
         {
@@ -96,6 +102,14 @@ namespace uploader
                 Top = Properties.Settings.Default.winTop;
 
             UpdateSounds();
+
+            comboFileFilter.BeginUpdate();
+            comboFileFilter.Items.AddRange(File.ReadAllLines(Path.Combine(_exeFolder, _fileFiltersFileName)));
+            int selected = Properties.Settings.Default.selectedFileFilter;
+            comboFileFilter.SelectedIndex = selected < comboFileFilter.Items.Count ? selected : 0;
+            comboFileFilter.EndUpdate();
+
+            Task.Run(() => StartPipeServer());
 
             _formInit = false;
         }
@@ -170,20 +184,23 @@ namespace uploader
             else
             {
                 // file or does't exist
-                var upload = new UploadForm(this, settings, path, _uploadList.Count + 1);
-                if (upload.FileIsTooSmall() || UploadIsDuplicate(upload))
+                if (_fileFilter.IsMatch(Path.GetFileName(path)))
                 {
-                    upload.Close();
-                    upload.Dispose();
-                }
-                else
-                {
-                    _uploadList.Add(upload);
-                    ResizeUploadSingle(upload);
-                    upload.Location = new Point(5, _uploaderCount * (upload.Height + 5));
-                    panelUploads.Controls.Add(upload);
-                    upload.Show();
-                    _uploaderCount++;
+                    var upload = new UploadForm(this, settings, path, _uploadList.Count + 1);
+                    if (upload.FileIsTooSmall() || UploadIsDuplicate(upload))
+                    {
+                        upload.Close();
+                        upload.Dispose();
+                    }
+                    else
+                    {
+                        _uploadList.Add(upload);
+                        ResizeUploadSingle(upload);
+                        upload.Location = new Point(5, _uploaderCount * (upload.Height + 5));
+                        panelUploads.Controls.Add(upload);
+                        upload.Show();
+                        _uploaderCount++;
+                    }
                 }
             }
         }
@@ -564,6 +581,103 @@ namespace uploader
         private void UpdateSounds()
         {
             labelSounds.Font = new Font(labelSounds.Font, _settings.Sounds ? FontStyle.Regular : FontStyle.Strikeout);
+        }
+
+        private void comboFileFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.selectedFileFilter = comboFileFilter.SelectedIndex;
+            toolTip1.SetToolTip(comboFileFilter, $"{_fileFiltersFileName}\n" + comboFileFilter.Text);
+            _fileFilter.Create(comboFileFilter.Text);
+        }
+
+        private void editFileFiltersToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    UseShellExecute = true,
+                    FileName = Path.Combine(_exeFolder, _fileFiltersFileName)
+                };
+                Process.Start(psi)?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                SystemSounds.Hand.Play();
+                DarkMessageBox.ShowError($"{ex.Source}\n{ex.Message}", this.Text);
+            }
+        }
+
+        private void dLLSideloadScannerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    UseShellExecute = true,
+                    Verb = "runas",
+                    FileName = Path.Combine(_exeFolder, "scanner.exe"),
+                    WorkingDirectory = _exeFolder
+                };
+                Process.Start(psi)?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                SystemSounds.Hand.Play();
+                DarkMessageBox.ShowError($"{ex.Source}\n{ex.Message}", this.Text);
+            }
+        }
+
+        public async Task StartPipeServer()
+        {
+            while (true)
+            {
+                using (var server = new NamedPipeServerStream("VirusTotalUploaderNewgenePipe", PipeDirection.In))
+                {
+                    await server.WaitForConnectionAsync();
+                    using (var reader = new StreamReader(server))
+                    {
+                        string countStr = await reader.ReadLineAsync();
+                        if (int.TryParse(countStr, out int count))
+                        {
+                            List<string> receivedPaths = new List<string>();
+                            for (int i = 0; i < count; i++)
+                            {
+                                receivedPaths.Add(await reader.ReadLineAsync());
+                            }
+                            this.Invoke(new Action(() =>
+                            {
+                                ResetScroll();
+                                showMultipleUploadForms(receivedPaths.ToArray(), _settings);
+                            }));
+                        }
+                    }
+                }
+            }
+        }
+
+        private void labelMessage_TextChanged(object sender, EventArgs e)
+        {
+            var label = sender as Label;
+            toolTip1.SetToolTip(label, label.Text);
+        }
+    } // MainForm
+
+    public class FileFilter
+    {
+        private string[] _patterns = null;
+        private bool _isAllFiles = false;
+
+        public void Create(string filter)
+        {
+            _patterns = filter.Split('|').Skip(1).ToArray();
+            _isAllFiles = _patterns.Any(p => p == "*.*");
+        }
+
+        public bool IsMatch(string fileName)
+        {
+            if (_isAllFiles) return true;
+            return _patterns.Any(p => Win32.PathMatchSpecW(fileName, p));
         }
     }
 
